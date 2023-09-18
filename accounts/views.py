@@ -1,13 +1,18 @@
-from rest_framework.views import APIView
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
+# 데이터 처리
 from .serializer import *
 from .models import User
+
+# APIView 사용 관련
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveUpdateAPIView
+from django.http import Http404
+
+# 인증 관련
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # Create your views here.
@@ -44,12 +49,16 @@ class LoginAPIView(APIView):
             }
         return Response(response, status=status.HTTP_200_OK)
 
-
-@permission_classes([IsAuthenticated])
-class UserUpdateAPIView(APIView):
-    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-    # 특정 정보를 들고오는 API
-    def get(self, request, unique):
-        userInfo = self.get_object(unique=unique)
-        serializer = UserInfoSerializer(userInfo)
-        return Response(serializer.data)
+# 회원 정보 확인하기 - 아직 고민 더 해봐야 함
+# @permission_classes([IsAuthenticated, IsAuthenticatedOrReadOnly])
+# class UserUpdateAPIView(APIView):
+#     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    
+#     def get(self, request):
+#         serializer = UserInfoSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             response = {
+#                 'account_id': serializer.data['account_id'],
+#                 'user_name': serializer.data['user_name']
+#             }
+#         return Response(response, status=status.HTTP_200_OK)
