@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializer import *
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.generics import RetrieveUpdateAPIView
 
 
 # Create your views here.
@@ -38,3 +39,22 @@ class LoginAPIView(APIView):
             'token': serializer.data['token']
         }
         return Response(response, status=status.HTTP_200_OK)
+    
+    
+@permission_classes([IsAuthenticated])
+class UserUpdateAPIView(RetrieveUpdateAPIView):
+    serializer_class = UserInfoSerializer
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def patch(self, request, *args, **kwargs):
+        serializer_data = request.data
+        serializer = self.serializer_class(
+            request.user, data=serializer_data, partial=True
+        )
+        
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
