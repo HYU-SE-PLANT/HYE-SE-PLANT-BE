@@ -46,3 +46,31 @@ class UserLoginSerializer(serializers.Serializer):
                 'access_token': access_token
             }
         }
+        
+        
+# 유저 정보 수정을 위한 serializer
+class UserInfoSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        max_length = 128,
+        min_length = 8,
+        write_only = True
+    )
+    
+    class Meta:
+        model = User
+        fields = [
+            'account_id',
+            'user_name',
+            'password',
+            'token'
+        ]
+    read_only_fields = ('account_id', 'token')
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for(key, value) in validated_data.items():
+            setattr(instance, key, value)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
