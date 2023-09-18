@@ -10,7 +10,7 @@ from django.contrib.auth.hashers import make_password
 class UserManager(BaseUserManager):
     use_in_migrations = True
     
-    def create_user(self, account_id, user_name, password, **kwargs):
+    def create_user(self, account_id, user_name, password, **extra_fields):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
         """
@@ -19,22 +19,23 @@ class UserManager(BaseUserManager):
         user = self.model(
             account_id=account_id,
             user_name=user_name,
+            **extra_fields
         )
         hashed_password = make_password(password)
         user.set_password(hashed_password)
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, account_id=None, user_name=None, password=None, **extra_fields):
+    def create_superuser(self, account_id, user_name, password):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
         단, 최상위 사용자이므로 권한을 부여
         """
-        superuser = self.create_user(
+        superuser = self.model(
             account_id=account_id,
             user_name=user_name,
-            password=password
         )
+        superuser.set_password(password)
         superuser.is_active = True # 해당 계정이 활성인지를 결정
         superuser.is_staff = True # 참인 경우 admin 사이트에 접속 가능
         superuser.is_superuser = True # 모든 권한 부여
