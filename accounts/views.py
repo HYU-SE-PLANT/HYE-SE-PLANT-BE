@@ -1,9 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializer import *
+from .models import User
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.generics import RetrieveUpdateAPIView
 
 
 # Create your views here.
@@ -32,9 +36,20 @@ class LoginAPIView(APIView):
                 {'message': 'fail'},
                 status=status.HTTP_200_OK
             )
-        response = {
-            'account_id': serializer.data['account_id'],
-            'success': True,
-            'token': serializer.data['token']
-        }
+        else:
+            response = {
+                'account_id': serializer.data['account_id'],
+                'success': True,
+                'token': serializer.data['token']
+            }
         return Response(response, status=status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+class UserUpdateAPIView(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    # 특정 정보를 들고오는 API
+    def get(self, request, unique):
+        userInfo = self.get_object(unique=unique)
+        serializer = UserInfoSerializer(userInfo)
+        return Response(serializer.data)

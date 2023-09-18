@@ -46,3 +46,10 @@ class UserLoginSerializer(serializers.Serializer):
                 'access_token': access_token
             }
         }
+        
+        
+# 유저 정보 수정을 위한 serializer
+class UserInfoSerializer(serializers.Serializer):
+    class Meta:
+        model = User
+        fields = '__all__'
