@@ -1,4 +1,4 @@
-from .models import User
+from .models import User, Profile
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -46,3 +46,17 @@ class UserLoginSerializer(serializers.Serializer):
                 'access_token': access_token
             }
         }
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = "__all__"
+        
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+    
+    class Meta:
+        model = User
+        fields = "__all__"
