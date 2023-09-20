@@ -1,16 +1,17 @@
 # 데이터 처리
 from .serializer import *
-from .models import User
+from .models import User, Profile
 
 # APIView 사용 관련
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.http import Http404
+from django.core import exceptions
 
 # 인증 관련
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -62,3 +63,18 @@ class LoginAPIView(APIView):
 #                 'user_name': serializer.data['user_name']
 #             }
 #         return Response(response, status=status.HTTP_200_OK)
+
+
+# 회원 정보 확인하기 view
+@permission_classes([IsAuthenticated])
+class UserMeAPIView(APIView):
+    # authentication 추가
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    def get(self, request, *args, **kwargs):
+        """
+        현재 로그인 된 유저의 모든 정보 반환
+        """
+        if request.user is None:
+            raise exceptions.PermissionDenied('사용자가 존재하지 않습니다.')
+        
+        return Response(UserSerializer)

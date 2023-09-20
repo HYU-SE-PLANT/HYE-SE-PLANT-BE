@@ -46,23 +46,3 @@ class UserLoginSerializer(serializers.Serializer):
                 'access_token': access_token
             }
         }
-        
-# 회원정보 확인하기 - 생각 계속해봐야 함        
-# class UserInfoSerializer(serializers.Serializer):
-#     account_id = serializers.CharField(required=True)
-#     password = serializers.CharField(required=True, write_only=True)
-    
-#     def validate(self, data):
-#         account_id = data.get("account_id", None)
-#         password = data.get("password", None)
-#         user = authenticate(account_id=account_id, password=password)
-        
-#         if user is None:
-#             return {
-#             'account_id': 'None'
-#         }
-#         else:
-#             return {
-#                 'account_id': user.account_id,
-#                 'user_name': user.user_name,
-#             }
