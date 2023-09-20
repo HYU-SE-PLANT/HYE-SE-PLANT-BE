@@ -13,9 +13,14 @@ class UserManager(BaseUserManager):
     def create_user(self, account_id, user_name, password, **extra_fields):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
-        """
-        if (not account_id) or (not user_name):
-            raise ValueError('Users must type both account_id and user_name')
+        """        
+        if not account_id:
+            raise ValueError('아이디는 필수 항목입니다.')
+        if not user_name:
+            raise ValueError('이름은 필수 항목입니다.')
+        if not password:
+            raise ValueError('비밀번호는 필수 항목입니다.')
+        
         user = self.model(
             account_id=account_id,
             user_name=user_name,
@@ -57,3 +62,5 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     USERNAME_FIELD = 'account_id' # 유저 모델의 unique=True가 옵션으로 설정된 필드 값
     REQUIRED_FIELDS = ['user_name'] # 필수로 받고 싶은 값
+    
+    
