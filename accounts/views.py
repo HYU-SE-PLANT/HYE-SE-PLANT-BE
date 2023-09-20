@@ -77,4 +77,4 @@ class UserMeAPIView(APIView):
         if request.user is None:
             raise exceptions.PermissionDenied('사용자가 존재하지 않습니다.')
         
-        return Response(UserSerializer)
+        return Response(UserSerializer(many=True, context={'request': request}).data)
