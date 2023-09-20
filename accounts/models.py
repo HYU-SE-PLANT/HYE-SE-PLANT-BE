@@ -29,6 +29,11 @@ class UserManager(BaseUserManager):
         hashed_password = make_password(password)
         user.set_password(hashed_password)
         user.save(using=self._db)
+        
+        # profile과 연동
+        profile = Profile(user=user,)
+        profile.save()
+        
         return user
     
     def create_superuser(self, account_id, user_name, password):
