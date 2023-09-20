@@ -74,7 +74,10 @@ class UserMeAPIView(APIView):
         """
         현재 로그인 된 유저의 모든 정보 반환
         """
-        if request.user is None:
-            raise exceptions.PermissionDenied('사용자가 존재하지 않습니다.')
-        
-        return Response(UserSerializer(many=True, context={'request': request}).data)
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            response = {
+                'account_id': serializer.data['account_id'],
+                'user_name': serializer.data['user_name']
+            }
+        return Response(response, status=status.HTTP_200_OK)
