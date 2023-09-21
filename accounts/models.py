@@ -10,7 +10,7 @@ from django.contrib.auth.hashers import make_password
 class UserManager(BaseUserManager):
     use_in_migrations = True
     
-    @transaction.atomic
+    # @transaction.atomic
     def create_user(self, account_id, user_name, password, **extra_fields):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
@@ -32,8 +32,8 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         
         # profile과 연동
-        profile = Profile(user=user,)
-        profile.save()
+        # profile = Profile(user=user,)
+        # profile.save()
         
         return user
     
@@ -74,8 +74,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     
 # profile
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     
-    def __str__(self):
-        return self.user.account_id
+#     def __str__(self):
+#         return self.user.account_id
