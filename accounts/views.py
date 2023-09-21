@@ -14,6 +14,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.generics import RetrieveUpdateAPIView
 
 
 # Create your views here.
@@ -50,13 +51,17 @@ class LoginAPIView(APIView):
             }
         return Response(response, status=status.HTTP_200_OK)
 
-# 회원 정보 확인하기 - 아직 고민 더 해봐야 함
-# @permission_classes([IsAuthenticated, IsAuthenticatedOrReadOnly])
-# class UserUpdateAPIView(APIView):
+
+# 회원 정보 확인하기 view
+# @permission_classes([IsAuthenticated])
+# class UserMeAPIView(APIView):
+#     # authentication 추가
 #     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-    
-#     def get(self, request):
-#         serializer = UserInfoSerializer(data=request.data)
+#     def get(self, request, *args, **kwargs):
+#         """
+#         현재 로그인 된 유저의 모든 정보 반환
+#         """
+#         serializer = UserSerializer(data=request.data)
 #         if serializer.is_valid(raise_exception=True):
 #             response = {
 #                 'account_id': serializer.data['account_id'],
@@ -67,17 +72,19 @@ class LoginAPIView(APIView):
 
 # 회원 정보 확인하기 view
 @permission_classes([IsAuthenticated])
-class UserMeAPIView(APIView):
+class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     # authentication 추가
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    
     def get(self, request, *args, **kwargs):
-        """
-        현재 로그인 된 유저의 모든 정보 반환
-        """
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            response = {
-                'account_id': serializer.data['account_id'],
-                'user_name': serializer.data['user_name']
-            }
-        return Response(response, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def patch(self, request, *args, **kwargs):
+        serializer_data = request.data
+        serializer = self.serializer_class(
+            request.user, data=serializer_data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
