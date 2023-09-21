@@ -1,6 +1,6 @@
 # 데이터 처리
 from .serializer import *
-from .models import User, Profile
+from .models import User
 
 # APIView 사용 관련
 from rest_framework.views import APIView
@@ -36,55 +36,30 @@ class LoginAPIView(APIView):
         if not serializer.is_valid(raise_exception=True):
             return Response(
                 {'message': 'Request Body Error.'},
-                status=status.HTTP_409_CONFLICT
+                status=status.HTTP_400_BAD_REQUEST
             )
         if serializer.validated_data['account_id'] == "None":
             return Response(
-                {'message': 'fail'},
+                {'message': 'Authentication fail'},
                 status=status.HTTP_200_OK
             )
         else:
             response = {
-                'account_id': serializer.data['account_id'],
+                'account_id': serializer.validated_data['account_id'],
                 'success': True,
-                'token': serializer.data['token']
+                'token': serializer.validated_data['token']
             }
         return Response(response, status=status.HTTP_200_OK)
 
 
 # 회원 정보 확인하기 view
-# @permission_classes([IsAuthenticated])
-# class UserMeAPIView(APIView):
-#     # authentication 추가
-#     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-#     def get(self, request, *args, **kwargs):
-#         """
-#         현재 로그인 된 유저의 모든 정보 반환
-#         """
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid(raise_exception=True):
-#             response = {
-#                 'account_id': serializer.data['account_id'],
-#                 'user_name': serializer.data['user_name']
-#             }
-#         return Response(response, status=status.HTTP_200_OK)
-
-
-# 회원 정보 확인하기 view
 @permission_classes([IsAuthenticated])
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class UserInfoAPIView(APIView):
     # authentication 추가
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-    
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def patch(self, request, *args, **kwargs):
-        serializer_data = request.data
-        serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        
+        return Response(serializer.data)

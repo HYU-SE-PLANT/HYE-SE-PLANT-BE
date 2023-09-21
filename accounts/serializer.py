@@ -1,4 +1,4 @@
-from .models import User, Profile
+from .models import User
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -33,6 +33,7 @@ class UserLoginSerializer(serializers.Serializer):
             return {
                 'account_id': 'None'
             }
+        
         try:
             token = TokenObtainPairSerializer.get_token(user)
             access_token = str(token.access_token)
@@ -46,32 +47,9 @@ class UserLoginSerializer(serializers.Serializer):
                 'access_token': access_token
             }
         }
-
-
-# class ProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Profile
-#         fields = "__all__"
         
 
 class UserSerializer(serializers.ModelSerializer):
-    # profile = ProfileSerializer(read_only=True)
-    
-    # class Meta:
-    #     model = User
-    #     fields = ['account_id', 'user_name', 'profile']
-    password = serializers.CharField(max_length=128, min_length=8, write_only=True)
-    
     class Meta:
         model = User
-        fields = ['account_id', 'user_name', 'password', 'token']
-        read_only_fields = ('token',)
-        
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-        for(key, value) in validated_data.items():
-            setattr(instance, key, value)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+        fields = ('account_id', 'user_name')
