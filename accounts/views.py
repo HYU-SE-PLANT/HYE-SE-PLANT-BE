@@ -54,12 +54,25 @@ class LoginAPIView(APIView):
 
 # 회원 정보 확인하기 view
 @permission_classes([IsAuthenticated])
-class UserInfoAPIView(APIView):
+class UserInfoUpdateAPIView(APIView):
     # authentication 추가
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
 
     def get(self, request):
-        user = request.user
+        user = request.user # 현재 인증된 사용자 가져오기
         serializer = UserSerializer(user)
-        
         return Response(serializer.data)
+    
+    def put(self, request):
+        user = request.user # 현재 인증된 사용자 가져오기
+        data = request.data # 수정할 정보가 들어있는 요청 데이터 가져오기
+        
+        # account_id 고정시키기
+        data['account_id'] = user.account_id
+        serializer = UserSerializer(user, data=data, partial=True)
+        
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=200)
+        else:
+            return Response(serializer.errors, status=400)
