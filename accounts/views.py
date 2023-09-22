@@ -63,12 +63,11 @@ class UserInfoUpdateAPIView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
     
-    def put(self, request):
+    def patch(self, request):
         user = request.user # 현재 인증된 사용자 가져오기
         data = request.data # 수정할 정보가 들어있는 요청 데이터 가져오기
         
-        # account_id 고정시키기
-        data['account_id'] = user.account_id
+        # 유효성 검사를 통해 user_name 필드만 변경 가능하도록 함
         serializer = UserSerializer(user, data=data, partial=True)
         
         if serializer.is_valid(raise_exception=True):

@@ -53,3 +53,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('account_id', 'user_name')
+        read_only_fields = ('account_id',)
+        
+    def validate(self, data):
+        # account_id와 user_name을 동시에 변경하려고 하면 에러 발생
+        if 'account_id' in data or len(data) > 1:
+            raise serializers.ValidationError("아이디를 변경할 수 없습니다.")
+        
+        # user_name 필드가 빈 문자열인지 검사
+        if 'user_name' in data and data['user_name'] == '':
+            raise serializers.ValidationError("이름은 빈칸으로 둘 수 없습니다.")
+        
+        return data
