@@ -12,7 +12,7 @@ class UserCheck(UserAdmin):
     
     # admin 페이지에서 사용자 수정할 때 입력폼
     fieldsets = (
-        ('user', {'fields': ('account_id', 'password')}),
+        ('user', {'fields': ('password',)}),
         ('Personal Info', {'fields': ('user_name',)}),
     )
     
