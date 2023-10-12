@@ -74,39 +74,28 @@ class LoginAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-
-# 로그아웃 view
-class LogOutAPIView(APIView):        
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-
-    def get(self, request):
-        user = request.user # 현재 인증된 사용자 가져오기
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
     
-    def delete(self, request):
-        # 쿠키에 저장된 토큰 삭제 => 로그아웃 처리
-        response = Response(
-            {
-                "message": "Logout success"
-            },
-            status=status.HTTP_202_ACCEPTED)
-        response.delete_cookie("access")
-        return response
 
-
-# 회원 정보 확인 및 수정하기 view
+# 회원 정보 확인 및 수정하기, 로그아웃 view
 class UserInfoAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    # 회원 정보 가져오기
     def get(self, request):
         user = request.user # 현재 인증된 사용자 가져오기
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+        return Response(
+            {
+                "account_id": serializer.data['account_id'],
+                "user_name": serializer.data['user_name'],
+                "date_joined": serializer.data['date_joined'],
+                "date_updated": serializer.data['date_updated'],
+            },                
+            status=status.HTTP_200_OK
+        )
     
+    # 회원 정보 수정하기
     def patch(self, request):
         user = request.user # 현재 인증된 사용자 가져오기
         data = request.data # 수정할 정보가 들어있는 요청 데이터 가져오기
@@ -144,3 +133,14 @@ class UserInfoAPIView(APIView):
                 )
             else:
                 return Response(serializer.errors, status=400)
+            
+    # 로그아웃
+    def delete(self, request):
+            # 쿠키에 저장된 토큰 삭제 => 로그아웃 처리
+        response = Response(
+            {
+                "message": "Logout success"
+            },
+            status=status.HTTP_202_ACCEPTED)
+        response.delete_cookie("access")
+        return response
