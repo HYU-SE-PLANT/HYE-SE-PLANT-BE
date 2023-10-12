@@ -136,7 +136,7 @@ class UserInfoAPIView(APIView):
             
     # 로그아웃
     def delete(self, request):
-            # 쿠키에 저장된 토큰 삭제 => 로그아웃 처리
+        # 쿠키에 저장된 토큰 삭제 => 로그아웃 처리
         response = Response(
             {
                 "message": "Logout success"
