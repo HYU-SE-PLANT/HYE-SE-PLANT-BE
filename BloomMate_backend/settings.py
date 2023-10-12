@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'BloomMate_backend.wsgi.app'
+WSGI_APPLICATION = 'BloomMate_backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -146,4 +148,10 @@ REST_FRAMEWORK = {
 		'rest_framework.permissions.IsAdminUser', # 관리자만 접근
 		'rest_framework.permissions.AllowAny', # 누구나 접근
 	),
+}
+
+
+# jwt 토큰에 대한 추가 설정
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
 }
