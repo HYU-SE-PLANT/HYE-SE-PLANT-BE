@@ -109,18 +109,19 @@ class UserInfoAPIView(APIView):
         data = request.data # 수정할 정보가 들어있는 요청 데이터 가져오기
         
         # account_id를 변경하려고 할 때 에러 응답 반환
-        if 'account_id' in data or len(data) > 1:
+        # 나머지 정보는 변경이 가능하기 때문에 총 8개의 정보 중 7개까지만 변경이 가능하다.
+        if 'account_id' in data or len(data) > 7:
             return Response(
                 {
                     "message": "아이디는 변경할 수 없습니다."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-        # user_name을 빈칸으로 설정할 때 에러 응답 반환
-        elif data['user_name'] == '':
+        # 아이디를 제외한 각 정보를 빈칸으로 설정할 때 에러 응답 반환
+        elif data['user_name'] == '' or data['tiiun_number'] == '' or data['tiiun_number'] == '' or data['cultivation_experience'] == '' or data['garden_size'] == '' or data['address'] == '':
             return Response(
                 {
-                    "message": "이름은 빈칸으로 설정할 수 없습니다."
+                    "message": "빈칸으로 설정할 수 없습니다."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
