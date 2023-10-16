@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 
 # 헬퍼 클래스 - 유저를 생성할 때 사용
 class UserManager(BaseUserManager):    
-    def create_user(self, account_id, user_name, tiiun_number, cultivation_experience, garden_size, address, password, **kwargs):
+    def create_user(self, account_id, user_name, tiiun_number, garden_size, address, password, **kwargs):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
         """        
@@ -16,9 +16,7 @@ class UserManager(BaseUserManager):
         if not user_name:
             raise ValueError('이름은 필수 항목입니다.')
         if not tiiun_number:
-                raise ValueError('틔운 제품키를 작성해주세요.')
-        if not cultivation_experience:
-            raise ValueError('재배 경험을 선택해주세요.')
+            raise ValueError('틔운 제품키를 작성해주세요.')
         if not garden_size:
             raise ValueError('화단 크기를 선택해주세요.')
         if not address:
@@ -34,7 +32,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, account_id=None, user_name=None, tiiun_number=None, cultivation_experience=None, garden_size=None, address=None, password=None, **extra_fields):
+    def create_superuser(self, account_id=None, user_name=None, tiiun_number=None, garden_size=None, address=None, password=None, **extra_fields):
         """
         주어진 id, name(별명), 비밀번호 개인정보로 User 인스턴스 생성
         단, 최상위 사용자이므로 권한을 부여
@@ -43,7 +41,6 @@ class UserManager(BaseUserManager):
             account_id=account_id,
             user_name=user_name,
             tiiun_number=tiiun_number,
-            cultivation_experience=cultivation_experience,
             garden_size=garden_size,
             address=address,
             password=password,
@@ -63,7 +60,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     account_id = models.CharField(max_length=30, unique=True, null=False, blank=False) # 아이디
     user_name = models.CharField(max_length=30, null=False, blank=False) # 이름
     tiiun_number = models.CharField(max_length=30, null=False, blank=False) # 틔운 제품키
-    cultivation_experience = models.CharField(max_length=1, null=False, blank=False) # 재배 경험
     garden_size = models.CharField(max_length=1, null=False, blank=False) # 화단 크기
     address = models.CharField(max_length=30, null=False, blank=False) # 주소
     
