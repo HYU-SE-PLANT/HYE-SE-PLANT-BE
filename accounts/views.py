@@ -57,6 +57,10 @@ class LoginAPIView(APIView):
                 {
                     "account_id": serializer.data['account_id'],
                     "user_name": serializer.data['user_name'],
+                    "tiiun_number": serializer.data['tiiun_number'],
+                    "cultivation_experience": serializer.data['cultivation_experience'],
+                    "garden_size": serializer.data['garden_size'],
+                    "address": serializer.data['address'],
                     "token": {
                         "access": access_token
                     },
@@ -89,6 +93,10 @@ class UserInfoAPIView(APIView):
             {
                 "account_id": serializer.data['account_id'],
                 "user_name": serializer.data['user_name'],
+                "tiiun_number": serializer.data['tiiun_number'],
+                "cultivation_experience": serializer.data['cultivation_experience'],
+                "garden_size": serializer.data['garden_size'],
+                "address": serializer.data['address'],
                 "date_joined": serializer.data['date_joined'],
                 "date_updated": serializer.data['date_updated'],
             },                
@@ -126,6 +134,10 @@ class UserInfoAPIView(APIView):
                     {
                         "account_id": serializer.data['account_id'],
                         "user_name": serializer.data['user_name'],
+                        "tiiun_number": serializer.data['tiiun_number'],
+                        "cultivation_experience": serializer.data['cultivation_experience'],
+                        "garden_size": serializer.data['garden_size'],
+                        "address": serializer.data['address'],
                         "date_joined": serializer.data['date_joined'],
                         "date_updated": serializer.data['date_updated'],
                     },                
