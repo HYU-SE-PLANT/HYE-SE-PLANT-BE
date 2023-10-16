@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(_('superuser_status'), default=False)
     
     USERNAME_FIELD = 'account_id' # 유저 모델의 unique=True가 옵션으로 설정된 필드 값
-    REQUIRED_FIELDS = ['user_name', 'tiiun_number', 'cultivation_experience', 'garden_size', 'address'] # 필수로 받고 싶은 값
+    REQUIRED_FIELDS = ['user_name', 'tiiun_number', 'garden_size', 'address'] # 필수로 받고 싶은 값
     
     # 헬퍼 클래스 사용
     objects = UserManager()
