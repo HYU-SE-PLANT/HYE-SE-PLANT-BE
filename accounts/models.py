@@ -27,6 +27,9 @@ class UserManager(BaseUserManager):
         user = self.model(
             account_id=account_id,
             user_name=user_name,
+            tiiun_number=tiiun_number,
+            garden_size=garden_size,
+            address=address
         )
         user.set_password(password)
         user.save(using=self._db)
