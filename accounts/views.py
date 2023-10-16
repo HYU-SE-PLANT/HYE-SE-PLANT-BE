@@ -83,7 +83,7 @@ class LoginAPIView(APIView):
 class UserInfoAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-
+    
     # 회원 정보 가져오기
     def get(self, request):
         user = request.user # 현재 인증된 사용자 가져오기
@@ -106,17 +106,33 @@ class UserInfoAPIView(APIView):
         user = request.user # 현재 인증된 사용자 가져오기
         data = request.data # 수정할 정보가 들어있는 요청 데이터 가져오기
         
+        # 수정하고자 하는 정보가 빈칸인지 확인하는 함수
+        def is_blank(data):
+            return data.strip() == ''
+        
+        # 확인하려는 데이터 필드 리스트를 만듭니다.
+        fields_to_check = [data['user_name'], data['tiiun_number'], data['garden_size'], data['address']]
+
         # account_id를 변경하려고 할 때 에러 응답 반환
         # 나머지 정보는 변경이 가능하기 때문에 총 8개의 정보 중 7개까지만 변경이 가능하다.
         if 'account_id' in data or len(data) > 7:
             return Response(
                 {
-                    "message": "아이디는 변경할 수 없습니다."
+                    "message": "해당 정보는 변경할 수 없습니다."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+            
         # 아이디를 제외한 각 정보를 빈칸으로 설정할 때 에러 응답 반환
-        elif data['user_name'] == '' or data['tiiun_number'] == '' or data['tiiun_number'] == '' or data['cultivation_experience'] == '' or data['garden_size'] == '' or data['address'] == '':
+        # 이 경우, 정보를 수정할 때, 수정하고자 하는 부분은 새로 작성 및 수정하지 않을 부분은 기존 정보를 그대로 전송하는 방법으로 해야함
+        # 아래의 예시는 user_name만 변경하려 할 때, 실제로 backend에 보내는 코드는 user_name뿐만 아니라 나머지 부분은 기존의 정보를 그대로 작성한 것
+        # {
+        #     "user_name": "snow",
+        #     "tiiun_number": "test_tiiun_number",
+        #     "garden_size": "0",
+        #     "address": "test_address"
+        # }
+        elif any(is_blank(field) for field in fields_to_check):
             return Response(
                 {
                     "message": "빈칸으로 설정할 수 없습니다."
