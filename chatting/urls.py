@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import ChatGPTView
+from .views import PlantChatting
 
 
 urlpatterns = [
-    path('chat/', ChatGPTView.as_view()),
+    path('chat/', PlantChatting.as_view()),
 ]
