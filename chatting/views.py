@@ -8,7 +8,7 @@ from .serializer import ChatSerializer
 def call_openai_api(user_message):
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
-        'Authorization': f'Bearer YOUR_OPENAI_API_KEY',
+        'Authorization': f'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',
         'Content-Type': 'application/json',
     }
     data = {
