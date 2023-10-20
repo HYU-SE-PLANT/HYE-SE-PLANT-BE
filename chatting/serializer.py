@@ -5,4 +5,4 @@ from .models import Chat
 class ChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chat
-        fields = ['id', 'user_input', 'gpt_response']
+        fields = ['id', 'prompt', 'response', 'created_at']
