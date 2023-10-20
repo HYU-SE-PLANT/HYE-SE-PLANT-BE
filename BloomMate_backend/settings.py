@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     
     # 생성한 앱
     'accounts',
+    'chatting',
 ]
 
 MIDDLEWARE = [
