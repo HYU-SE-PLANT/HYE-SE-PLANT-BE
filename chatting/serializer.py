@@ -1,8 +1,8 @@
-from rest_framework import serializers
-from .models import Chat
+# from rest_framework import serializers
+# from .models import Chat
 
 
-class ChatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Chat
-        fields = ['id', 'prompt', 'response', 'created_at']
+# class ChatSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Chat
+#         fields = ['id', 'prompt', 'response', 'created_at']
