@@ -5,14 +5,12 @@ from rest_framework.views import APIView
 from .serializer import PlantChatSerializer
 
 
-class PlantChattingView(APIView):
-    serializer_class = PlantChatSerializer
-    
+class PlantChattingView(APIView):    
     def get(self, request, format=None):
         pass
     
     def post(self, request, format=None):
-        serializer = serializer_class(data=request.data)
+        serializer = PlantChatSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
