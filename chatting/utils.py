@@ -19,3 +19,6 @@ def send_sentence_to_api(sentence):
         ],
     )
     return res["choices"][0]["message"]["content"]
+
+
+# assistant로 설정해둬야 앞서서 이야기 한 내용과 같이 이어서 계속 대화를 이어나갈 수 있음
