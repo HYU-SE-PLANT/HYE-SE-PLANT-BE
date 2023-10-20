@@ -2,9 +2,13 @@ import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Chat
 from .serializer import ChatSerializer
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
 
+@permission_classes([AllowAny])
 def call_openai_api(user_message):
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
@@ -22,6 +26,7 @@ def call_openai_api(user_message):
     return assistant_message
 
 
+@permission_classes([AllowAny])
 class ChatGPTView(APIView):
     def post(self, request):
         serializer = ChatSerializer(data=request.data)
