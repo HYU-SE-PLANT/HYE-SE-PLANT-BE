@@ -9,6 +9,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 
 from rest_framework import permissions
+from .permissions import IsOwnerOrReadOnly
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -42,7 +43,7 @@ class QuestionCreate(APIView):
     
 # 질문 세부사항 관련
 class QuestionDetail(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     authentication_classes = [JWTAuthentication]
     
     # 객체 가져오기
@@ -61,6 +62,15 @@ class QuestionDetail(APIView):
     # 질문 수정하기
     def patch(self, request, pk, format=None):
         question = self.get_object(pk)
+        
+        # 질문자와 수정자가 동일한지 확인
+        if not request.user == question.user:
+            return Response({
+                "detail": "직접 작성한 질문이 아닙니다. 질문 수정이 허가되지 않았습니다."
+            },
+            status=status.HTTP_403_FORBIDDEN                    
+        )
+        
         serializer = CommunitySerializer(instance=question, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -70,6 +80,15 @@ class QuestionDetail(APIView):
     # 질문 삭제하기
     def delete(self, request, pk, format=None):
         question = self.get_object(pk)
+        
+        # 질문자와 수정자가 동일한지 확인
+        if not request.user == question.user:
+            return Response({
+                "detail": "직접 작성한 질문이 아닙니다. 질문 삭제가 허가되지 않았습니다."
+            },
+            status=status.HTTP_403_FORBIDDEN                    
+        )
+            
         question.delete()
         return Response({
                 "message": "질문이 삭제되었습니다."

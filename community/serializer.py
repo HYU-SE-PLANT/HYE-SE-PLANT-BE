@@ -3,8 +3,8 @@ from rest_framework import serializers
 
 
 class CommunitySerializer(serializers.ModelSerializer):
-    # user_name 받아올 것
-    user = serializers.ReadOnlyField(source = 'user.user_name')
+    # account_id 받아올 것
+    user = serializers.ReadOnlyField(source = 'user.account_id')
     class Meta:
         model = Community
         # 표시되는 항목
