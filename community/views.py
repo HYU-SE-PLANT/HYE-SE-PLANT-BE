@@ -1,5 +1,6 @@
 from .models import Community
 from .serializer import CommunitySerializer
+from .pagination import CustomResultsSetPagination
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,6 +16,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class QuestionList(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    pagination_class = CustomResultsSetPagination
     
     # 질의응답 리스트 보여줄 때
     def get(self, request):
