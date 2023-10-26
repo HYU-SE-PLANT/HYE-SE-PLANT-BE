@@ -23,3 +23,17 @@ class QuestionList(APIView):
         questions = Community.objects.all()
         serializer = CommunitySerializer(questions, many=True)
         return Response(serializer.data)
+    
+
+# 새로운 질문 등록
+class QuestionCreate(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self, request):
+        # request.data 는 사용자의 입력 데이터
+        serializer = CommunitySerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True): # 유효성 검사
+            serializer.save(user = request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

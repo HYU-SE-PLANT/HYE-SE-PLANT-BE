@@ -9,4 +9,4 @@ class Community(models.Model):
     question_content = models.TextField(null=False, blank=False) # 내용 입력
     question_date = models.DateTimeField(auto_now_add=True) # 작성 날짜
     answer_or_not = models.BooleanField(default=False) # 답변 여부
-    questioner_id = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE) # 작성자
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE) # 작성자
