@@ -66,3 +66,13 @@ class QuestionDetail(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 질문 삭제하기
+    def delete(self, request, pk, format=None):
+        question = self.get_object(pk)
+        question.delete()
+        return Response({
+                "message": "질문이 삭제되었습니다."
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
