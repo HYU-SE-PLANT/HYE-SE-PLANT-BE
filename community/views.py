@@ -57,3 +57,12 @@ class QuestionDetail(APIView):
         question = self.get_object(pk)
         serializer = CommunitySerializer(question)
         return Response(serializer.data)
+    
+    # 질문 수정하기
+    def patch(self, request, pk, format=None):
+        question = self.get_object(pk)
+        serializer = CommunitySerializer(instance=question, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
