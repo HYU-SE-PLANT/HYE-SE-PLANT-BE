@@ -8,5 +8,6 @@ class Community(models.Model):
     question_title = models.CharField(max_length=255, null=False, blank=False) # 제목 길이: 최대 255자
     question_content = models.TextField(null=False, blank=False) # 내용 입력
     question_date = models.DateTimeField(auto_now_add=True) # 작성 날짜
+    question_updated_date = models.DateTimeField(auto_now=True) # 수정 날짜
     answer_or_not = models.BooleanField(default=False) # 답변 여부
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE) # 작성자

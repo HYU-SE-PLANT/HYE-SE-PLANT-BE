@@ -8,4 +8,4 @@ class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
         # 표시되는 항목
-        fields = ['id', 'question_title', 'question_date', 'user', 'question_content']
+        fields = ['id', 'question_title', 'question_date', 'question_updated_date', 'user', 'question_content']
