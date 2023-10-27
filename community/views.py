@@ -24,7 +24,11 @@ class QuestionList(APIView):
     def get(self, request):
         questions = Community.objects.all()
         serializer = CommunitySerializer(questions, many=True)
-        return Response(serializer.data)
+        dataList=serializer.data
+
+        for element in dataList:
+            del element['comments'] # comments 부분은 안 보여주기
+        return Response(dataList,status=status.HTTP_200_OK)
     
 
 # 새로운 질문 등록
