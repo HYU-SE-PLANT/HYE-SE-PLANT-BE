@@ -43,7 +43,7 @@ class QuestionCreate(APIView):
     
 # 새로운 댓글 등록 - 백엔드에서 직접 넣어줄 예정
 class CommentCreate(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 댓글 등록 가능
     authentication_classes = [JWTAuthentication]
     
     def post(self, request, pk, format=None):
@@ -102,7 +102,7 @@ class QuestionDetail(APIView):
             return Response({
                 "detail": "직접 작성한 질문이 아닙니다. 질문 삭제가 허가되지 않았습니다."
             },
-            status=status.HTTP_403_FORBIDDEN                    
+            status=status.HTTP_403_FORBIDDEN
         )
             
         question.delete()
