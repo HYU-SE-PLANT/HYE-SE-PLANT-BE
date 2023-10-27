@@ -41,9 +41,9 @@ class QuestionCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-# 새로운 댓글 등록
+# 새로운 댓글 등록 - 백엔드에서 직접 넣어줄 예정
 class CommentCreate(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     authentication_classes = [JWTAuthentication]
     
     def post(self, request, pk, format=None):
