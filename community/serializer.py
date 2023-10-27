@@ -15,3 +15,8 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'question', 'comment_date', 'comment_content']
+        extra_kwargs = {
+            'question': {
+                'required': False
+            }
+        }
