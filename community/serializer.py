@@ -1,4 +1,4 @@
-from .models import Community
+from .models import Community, Comment
 from rest_framework import serializers
 
 
@@ -9,3 +9,9 @@ class CommunitySerializer(serializers.ModelSerializer):
         model = Community
         # 표시되는 항목
         fields = ['id', 'question_title', 'question_date', 'question_updated_date', 'user', 'question_content']
+        
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'question', 'comment_date', 'comment_content']
