@@ -11,3 +11,16 @@ class Community(models.Model):
     question_updated_date = models.DateTimeField(auto_now=True) # 수정 날짜
     answer_or_not = models.BooleanField(default=False) # 답변 여부
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE) # 작성자
+    
+    def __str__(self):
+        return self.question_title
+    
+    
+class Comment(models.Model):
+    id = models.AutoField(primary_key=True, null=False, blank=False) # 댓글의 id 값
+    question = models.ForeignKey(Community, related_name='comments', null=False, blank=False, on_delete=models.CASCADE) # 질의응답 - 질문
+    comment_date = models.DateTimeField(auto_now_add=True, null=False, blank=False) # 댓글 작성 날짜
+    comment_content = models.TextField(null=False, blank=False) # 댓글 내용 입력
+    
+    def __str__(self):
+        return self.comment_content

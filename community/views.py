@@ -1,5 +1,5 @@
 from .models import Community
-from .serializer import CommunitySerializer
+from .serializer import CommunitySerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
 
 from rest_framework.response import Response
@@ -24,7 +24,11 @@ class QuestionList(APIView):
     def get(self, request):
         questions = Community.objects.all()
         serializer = CommunitySerializer(questions, many=True)
-        return Response(serializer.data)
+        dataList=serializer.data
+
+        for element in dataList:
+            del element['comments'] # comments 부분은 안 보여주기
+        return Response(dataList,status=status.HTTP_200_OK)
     
 
 # 새로운 질문 등록
@@ -37,6 +41,22 @@ class QuestionCreate(APIView):
         serializer = CommunitySerializer(data=request.data)
         if serializer.is_valid(raise_exception=True): # 유효성 검사
             serializer.save(user = request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+# 새로운 댓글 등록 - 백엔드에서 직접 넣어줄 예정
+class CommentCreate(APIView):
+    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 댓글 등록 가능
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self, request, pk, format=None):
+        question = Community.objects.get(pk=pk)
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(question=question)
+            question.answer_or_not = True # 댓글 유무 업데이트
+            question.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -86,7 +106,7 @@ class QuestionDetail(APIView):
             return Response({
                 "detail": "직접 작성한 질문이 아닙니다. 질문 삭제가 허가되지 않았습니다."
             },
-            status=status.HTTP_403_FORBIDDEN                    
+            status=status.HTTP_403_FORBIDDEN
         )
             
         question.delete()
