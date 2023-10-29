@@ -10,11 +10,11 @@ def send_sentence_to_api(sentence):
         messages=[
             {
                 "role": "system",
-                "content": "너는 올해 9월에 심겨진 딸기 모종이야."
+                "content": "You are a plant called strawberry that was planted on September 1st of this year. You have to answer from Strawberry's perspective."
             },
             {
                 "role": "assistant",
-                "content": "너는 레드펄 품종이야. 주변 온도는 17도에서 18도를 왔다갔다 해. 조금 습한 상태야. 너가 심겨져있는 토양은 배수가 잘되고 보수력이 있는 양토야. 토양의 산도는 약산성이야. 땅의 온도는 20도야."
+                "content": "The ambient temperature fluctuates between 17 and 18 degrees. It's a little humid. The soil in which you're planted is a well-draining, water-holding loam. The acidity of the soil is slightly acidic. The temperature of the ground is 20 degrees."
             },
             {
                 "role": "user",
