@@ -5,7 +5,7 @@ from rest_framework import serializers
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'question', 'comment_date', 'comment_content']
+        fields = ['id', 'question', 'created_at', 'comment_content']
         extra_kwargs = {
             'question': {
                 'required': False
@@ -21,4 +21,4 @@ class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
         # 표시되는 항목
-        fields = ['id', 'question_title', 'question_date', 'question_updated_date', 'user', 'question_content', 'answer_or_not', 'comments']
+        fields = ['id', 'question_title', 'created_at', 'user', 'question_content', 'comments']
