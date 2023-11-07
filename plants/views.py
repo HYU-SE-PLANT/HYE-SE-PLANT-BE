@@ -70,9 +70,24 @@ class PlantDetail(APIView):
     authentication_classes = [JWTAuthentication]
         
     # 식물 정보 자세히 보기
-    def get(self, request, pk, format=None):
-        # select_related: Plant와 연관된 Plant_Type 정보를 함께 가져온다.
-        plant = get_object_or_404(Plant.objects.select_related('plant_type_id'), pk=pk)
+    def get(self, request, account_id, plant_nickname, format=None):
+        # account_id로 User 객체를 가져옵니다.
+        user = get_object_or_404(User, account_id=account_id)
+        
+        # User ID와 식물 닉네임으로 식물 조회
+        plant = get_object_or_404(
+            Plant.objects.select_related('plant_type_id'),
+            user_id=user, plant_nickname=plant_nickname
+        )
+        
+        # 요청을 보낸 사용자가 식물의 소유자와 일치하는지 확인합니다.
+        if request.user != user:
+            return Response(
+                {
+                    'message': 'You do not have permission to view this plant.'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         plant_serializer = PlantSerializer(plant)        
         plant_data = plant_serializer.data # Plant 데이터 가져오기
@@ -99,6 +114,7 @@ class PlantDetail(APIView):
         # growth_level 계산
         plant_data['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
 
+        # 불필요한 정보 제거
         del plant_data['user_id']
         del plant_data['harvested_at']
         del plant_data['plant_type_id']
