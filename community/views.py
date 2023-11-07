@@ -1,5 +1,5 @@
 from .models import Community
-from .serializer import CommunitySerializer, CommentSerializer
+from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
 
 from rest_framework.response import Response
@@ -23,7 +23,7 @@ class QuestionList(APIView):
     # 질의응답 리스트 보여줄 때
     def get(self, request):
         questions = Community.objects.all()
-        serializer = CommunitySerializer(questions, many=True)
+        serializer = QuestionSerializer(questions, many=True)
         dataList=serializer.data
 
         for element in dataList:
@@ -38,7 +38,7 @@ class QuestionCreate(APIView):
     
     def post(self, request):
         # request.data 는 사용자의 입력 데이터
-        serializer = CommunitySerializer(data=request.data)
+        serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True): # 유효성 검사
             serializer.save(user = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -76,7 +76,7 @@ class QuestionDetail(APIView):
     # 질문 상세히 보기
     def get(self, request, pk, format=None):
         question = self.get_object(pk)
-        serializer = CommunitySerializer(question)
+        serializer = QuestionSerializer(question)
         return Response(serializer.data)
     
     # 질문 수정하기
@@ -91,7 +91,7 @@ class QuestionDetail(APIView):
             status=status.HTTP_403_FORBIDDEN                    
         )
         
-        serializer = CommunitySerializer(instance=question, data=request.data)
+        serializer = QuestionSerializer(instance=question, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
