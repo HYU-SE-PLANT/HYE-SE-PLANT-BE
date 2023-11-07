@@ -40,7 +40,6 @@ class Plant(models.Model):
     plant_type_id = models.ForeignKey(Plant_Type, null=False, blank=False, on_delete=models.CASCADE)
     planted_at = models.DateTimeField(null=False, blank=False)
     harvested_at = models.DateTimeField(null=True)
-    is_harvested = models.BooleanField(default=False, null=False, blank=False)
     user_id = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
