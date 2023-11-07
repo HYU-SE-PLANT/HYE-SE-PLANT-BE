@@ -29,4 +29,29 @@ class PlantList(APIView):
             plant_data.append(plant_info)
             
         return Response(plant_data, status=status.HTTP_200_OK)
-        
+    
+
+# 식물 세부정보 등록 - 백엔드에서 직접 넣기(1순위)
+class PlantType(APIView):
+    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self, request):
+        serializer = PlantTypeSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+ 
+# 새로운 식물 등록(2순위)
+class PlantCreate(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication] # 가입한 사람만이 등록 가능
+    
+    def post(self, request):
+        serializer = PlantSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user_id = request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

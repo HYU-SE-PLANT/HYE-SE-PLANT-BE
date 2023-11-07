@@ -1,4 +1,4 @@
-from .models import Community
+from .models import Question
 from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
 
@@ -14,7 +14,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-# Community에 올라온 질문 목록 보여주기
+# Question에 올라온 질문 목록 보여주기
 class QuestionList(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -22,7 +22,7 @@ class QuestionList(APIView):
     
     # 질의응답 리스트 보여줄 때
     def get(self, request):
-        questions = Community.objects.all()
+        questions = Question.objects.all()
         serializer = QuestionSerializer(questions, many=True)
         dataList=serializer.data
 
@@ -51,11 +51,11 @@ class CommentCreate(APIView):
     authentication_classes = [JWTAuthentication]
     
     def post(self, request, pk, format=None):
-        question = Community.objects.get(pk=pk)
+        question = Question.objects.get(pk=pk)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(question=question)
-            question.answer_or_not = True # 댓글 유무 업데이트
+            question.answer_or_not = True # 댓글 유무 업데이트 -> 수정 필요
             question.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -69,8 +69,8 @@ class QuestionDetail(APIView):
     # 객체 가져오기
     def get_object(self, pk):
         try:
-            return Community.objects.get(pk=pk)
-        except Community.DoesNotExist:
+            return Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
             raise Http404
         
     # 질문 상세히 보기
