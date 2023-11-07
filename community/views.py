@@ -1,5 +1,6 @@
-from .models import Community
-from .serializer import CommunitySerializer, CommentSerializer
+from .models import Question
+from .utils import get_question_is_answered
+from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
 
 from rest_framework.response import Response
@@ -14,7 +15,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-# Community에 올라온 질문 목록 보여주기
+# Question에 올라온 질문 목록 보여주기
 class QuestionList(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -22,12 +23,20 @@ class QuestionList(APIView):
     
     # 질의응답 리스트 보여줄 때
     def get(self, request):
-        questions = Community.objects.all()
-        serializer = CommunitySerializer(questions, many=True)
-        dataList=serializer.data
+        questions = Question.objects.all()
+        question_data = []
+        
+        for question in questions:
+            serializer = QuestionSerializer(question)
+            data = serializer.data
+            data['is_answered'] = get_question_is_answered(question)
+            question_data.append(data)
+        
+        dataList=question_data
 
         for element in dataList:
             del element['comments'] # comments 부분은 안 보여주기
+        
         return Response(dataList,status=status.HTTP_200_OK)
     
 
@@ -38,7 +47,7 @@ class QuestionCreate(APIView):
     
     def post(self, request):
         # request.data 는 사용자의 입력 데이터
-        serializer = CommunitySerializer(data=request.data)
+        serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True): # 유효성 검사
             serializer.save(user = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -51,13 +60,21 @@ class CommentCreate(APIView):
     authentication_classes = [JWTAuthentication]
     
     def post(self, request, pk, format=None):
-        question = Community.objects.get(pk=pk)
+        try:
+            question = Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
+            return Response(
+                {
+                    "error": "질문이 존재하지 않습니다."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(question=question)
-            question.answer_or_not = True # 댓글 유무 업데이트
-            question.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            is_answered = get_question_is_answered(question)
+            return Response({**serializer.data, 'is_answered':is_answered}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
@@ -69,14 +86,14 @@ class QuestionDetail(APIView):
     # 객체 가져오기
     def get_object(self, pk):
         try:
-            return Community.objects.get(pk=pk)
-        except Community.DoesNotExist:
+            return Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
             raise Http404
         
     # 질문 상세히 보기
     def get(self, request, pk, format=None):
         question = self.get_object(pk)
-        serializer = CommunitySerializer(question)
+        serializer = QuestionSerializer(question)
         return Response(serializer.data)
     
     # 질문 수정하기
@@ -91,7 +108,7 @@ class QuestionDetail(APIView):
             status=status.HTTP_403_FORBIDDEN                    
         )
         
-        serializer = CommunitySerializer(instance=question, data=request.data)
+        serializer = QuestionSerializer(instance=question, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
