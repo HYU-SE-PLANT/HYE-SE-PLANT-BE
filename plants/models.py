@@ -23,6 +23,16 @@ class Plant_Type(models.Model):
         return self.plant_name
 
 
+class Plant_Disease_Type(models.Model):
+    id = models.IntegerField(primary_key=True, null=False, blank=False)
+    plant_disease_name = models.CharField(max_length=100, null=False)
+    plant_disease_symptom = models.CharField(max_length=255, null=False)
+    plant_disease_condition = models.CharField(max_length=255, null=False)
+    
+    def __str__(self):
+        return self.plant_disease_name
+
+
 class Plant(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
     plant_nickname = models.CharField(max_length=255, null=False, blank=False)
@@ -35,3 +45,14 @@ class Plant(models.Model):
     
     def __str__(self):
         return self.plant_nickname
+    
+    
+class Plant_Disease_Record(models.Model):
+    id = models.AutoField(primary_key=True, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    diagnose_photo_url = models.CharField(max_length=255, null=False, blank=False)
+    plant_id = models.ForeignKey(Plant, null=False, blank=False, on_delete=models.CASCADE)
+    disease_id = models.ForeignKey(Plant_Disease_Type, null=False, blank=False, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.created_at
