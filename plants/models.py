@@ -3,7 +3,7 @@ from accounts.models import User
 
 
 class Plant_Type(models.Model):
-    id = models.IntegerField(primary_key=True, null=False, blank=False)
+    id = models.AutoField(primary_key=True, null=False, blank=False)
     plant_name = models.CharField(max_length=30, null=False, blank=False)
     plant_temperature = models.CharField(max_length=30, null=False, blank=False)
     plant_humidity = models.CharField(max_length=30, null=False, blank=False)
@@ -24,7 +24,7 @@ class Plant_Type(models.Model):
 
 
 class Plant_Disease_Type(models.Model):
-    id = models.IntegerField(primary_key=True, null=False, blank=False)
+    id = models.AutoField(primary_key=True, null=False, blank=False)
     plant_disease_name = models.CharField(max_length=100, null=False)
     plant_disease_symptom = models.CharField(max_length=255, null=False)
     plant_disease_condition = models.CharField(max_length=255, null=False)
