@@ -1,4 +1,5 @@
 from .models import Question
+from .utils import get_question_is_answered
 from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
 
@@ -23,8 +24,14 @@ class QuestionList(APIView):
     # 질의응답 리스트 보여줄 때
     def get(self, request):
         questions = Question.objects.all()
-        serializer = QuestionSerializer(questions, many=True)
-        dataList=serializer.data
+        question_data = []
+        
+        for question in questions:
+            question_data = QuestionSerializer(question).data
+            question_data['is_answered'] = get_question_is_answered(question)
+            question_data.append(question_data)
+        
+        dataList=question_data
 
         for element in dataList:
             del element['comments'] # comments 부분은 안 보여주기
@@ -51,13 +58,21 @@ class CommentCreate(APIView):
     authentication_classes = [JWTAuthentication]
     
     def post(self, request, pk, format=None):
-        question = Question.objects.get(pk=pk)
+        try:
+            question = Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
+            return Response(
+                {
+                    "error": "질문이 존재하지 않습니다."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(question=question)
-            question.answer_or_not = True # 댓글 유무 업데이트 -> 수정 필요
-            question.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            is_answered = get_question_is_answered(question)
+            return Response({**serializer.data, 'is_answered':is_answered}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
