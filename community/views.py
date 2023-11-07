@@ -27,14 +27,16 @@ class QuestionList(APIView):
         question_data = []
         
         for question in questions:
-            question_data = QuestionSerializer(question).data
-            question_data['is_answered'] = get_question_is_answered(question)
-            question_data.append(question_data)
+            serializer = QuestionSerializer(question)
+            data = serializer.data
+            data['is_answered'] = get_question_is_answered(question)
+            question_data.append(data)
         
         dataList=question_data
 
         for element in dataList:
             del element['comments'] # comments 부분은 안 보여주기
+        
         return Response(dataList,status=status.HTTP_200_OK)
     
 
