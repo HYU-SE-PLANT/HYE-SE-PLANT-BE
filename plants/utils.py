@@ -27,3 +27,8 @@ def calculate_growth_level(plant_type, planted_at):
         return 'harvest'
     else:
         return 'nothing'
+    
+    
+# 수정하고자 하는 정보가 빈칸인지 확인
+def is_blank(data):
+    return data.strip() == ''

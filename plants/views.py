@@ -1,6 +1,6 @@
 from .models import *
 from .serializer import *
-from .utils import determine_is_harvested, calculate_growth_level
+from .utils import determine_is_harvested, calculate_growth_level, is_blank
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -76,9 +76,8 @@ class PlantDetail(APIView):
         
     # 식물 정보 자세히 보기
     def get(self, request, format=None):
-        # account_id로 User 객체를 가져옵니다.
+        # account_id로 User 객체를 가져오기
         user = request.user
-        
         plant_id = request.GET.get('plant_id', None)
         
         # User ID와 식물 id로 식물 조회
@@ -87,11 +86,11 @@ class PlantDetail(APIView):
             user_id=user, id=plant_id
         )
         
-        # 요청을 보낸 사용자가 식물의 소유자와 일치하는지 확인합니다.
+        # 요청을 보낸 사용자가 식물의 소유자와 일치하는지 확인
         if request.user != user:
             return Response(
                 {
-                    'message': 'You do not have permission to view this plant.'
+                    'message': '이 식물에 대한 접근 권한이 없습니다.'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -127,3 +126,59 @@ class PlantDetail(APIView):
         del plant_data['plant_type_id']
 
         return Response(plant_data, status=status.HTTP_200_OK)
+    
+    # 식물 정보 수정하기
+    def patch(self, request, format=None):
+        # account_id로 User 객체를 가져오기
+        user = request.user
+        plant_id = request.GET.get('plant_id', None)
+        
+        # User ID와 식물 id로 식물 조회
+        plant = get_object_or_404(Plant, user_id=user, id=plant_id)
+        
+        # 요청을 보낸 사용자가 식물의 소유자와 일치하는지 확인
+        if request.user != user:
+            return Response(
+                {
+                    'message': '이 식물에 대한 접근 권한이 없습니다.'
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        serializer = PlantSerializer(plant, data=request.data, partial=True)
+
+        if serializer.is_valid(raise_exception=True):
+            updated_plant = serializer.save()
+            
+            plant_type_serializer = PlantTypeSerializer(updated_plant.plant_type_id)
+            
+            # growth_level 계산
+            growth_level = calculate_growth_level(updated_plant.plant_type_id, updated_plant.planted_at)
+
+            response_data = {
+                # 기존 Plant 필드
+                'id': updated_plant.id,
+                'plant_picture_url': updated_plant.plant_picture_url,
+                'plant_nickname': updated_plant.plant_nickname,
+                'planted_at': updated_plant.planted_at,
+                # Plant_Type 데이터
+                'plant_name': plant_type_serializer.data['plant_name'],
+                'plant_temperature': plant_type_serializer.data['plant_temperature'],
+                'plant_humidity': plant_type_serializer.data['plant_humidity'],
+                'plant_illuminance': plant_type_serializer.data['plant_illuminance'],
+                'plant_bloom_season': plant_type_serializer.data['plant_bloom_season'],
+                'plant_watering_cycle': plant_type_serializer.data['plant_watering_cycle'],
+                'plant_difficulty': plant_type_serializer.data['plant_difficulty'],
+                'plant_caution': plant_type_serializer.data['plant_caution'],
+                'germination_period_start': plant_type_serializer.data['germination_period_start'],
+                'germination_period_end': plant_type_serializer.data['germination_period_end'],
+                'growth_period_start': plant_type_serializer.data['growth_period_start'],
+                'growth_period_end': plant_type_serializer.data['growth_period_end'],
+                'harvest_period_start': plant_type_serializer.data['harvest_period_start'],
+                'harvest_period_end': plant_type_serializer.data['harvest_period_end'],
+                # 계산 결과
+                'growth_level': growth_level
+            }            
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

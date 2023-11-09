@@ -64,9 +64,17 @@ class CommentCreate(APIView):
     permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 댓글 등록 가능
     authentication_classes = [JWTAuthentication]
     
-    def post(self, request, pk, format=None):
+    # 객체 가져오기
+    def get_object(self, pk):
         try:
-            question = Question.objects.get(pk=pk)
+            return Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
+            raise Http404
+    
+    def post(self, request, format=None):
+        try:
+            question_id = request.GET.get('question_id', None)
+            question = self.get_object(question_id)
         except Question.DoesNotExist:
             return Response(
                 {
@@ -98,7 +106,6 @@ class QuestionDetail(APIView):
     # 질문 상세히 보기
     def get(self, request, format=None):
         question_id = request.GET.get('question_id', None)
-        
         question = self.get_object(question_id)
         serializer = QuestionSerializer(question)
         
@@ -125,8 +132,9 @@ class QuestionDetail(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
     
     # 질문 수정하기
-    def patch(self, request, pk, format=None):
-        question = self.get_object(pk)
+    def patch(self, request, format=None):
+        question_id = request.GET.get('question_id', None)
+        question = self.get_object(question_id)
         
         # 질문자와 수정자가 동일한지 확인
         if not request.user == question.user:
@@ -136,15 +144,16 @@ class QuestionDetail(APIView):
             status=status.HTTP_403_FORBIDDEN                    
         )
         
-        serializer = QuestionSerializer(instance=question, data=request.data)
+        serializer = QuestionSerializer(instance=question, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # 질문 삭제하기
-    def delete(self, request, pk, format=None):
-        question = self.get_object(pk)
+    def delete(self, request, format=None):
+        question_id = request.GET.get('question_id', None)
+        question = self.get_object(question_id)
         
         # 질문자와 수정자가 동일한지 확인
         if not request.user == question.user:
