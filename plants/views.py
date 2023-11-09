@@ -20,6 +20,8 @@ class PlantList(APIView):
     authentication_classes = [JWTAuthentication]
     
     def get(self, request):
+        user = request.user
+        
         plants = Plant.objects.filter(user_id=request.user) # 인증된 사용자의 식물만 확인
         plant_data = []
         
@@ -28,8 +30,13 @@ class PlantList(APIView):
             plant_info['is_harvested'] = determine_is_harvested(plant.harvested_at)
             plant_info['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
             plant_data.append(plant_info)
+        
+        response_data = {
+            'DATA': plant_data,
+            'garden_size': user.garden_size
+        }
             
-        return Response(plant_data, status=status.HTTP_200_OK)
+        return Response(response_data, status=status.HTTP_200_OK)
     
     # TODO: API 명세서 - {[식물 정보], garden_size: 0} 와 같이 garden_size를 식물 정보 외곽에 나타낼 수 있게 하기
     
@@ -70,14 +77,16 @@ class PlantDetail(APIView):
     authentication_classes = [JWTAuthentication]
         
     # 식물 정보 자세히 보기
-    def get(self, request, account_id, plant_nickname, format=None):
+    def get(self, request, format=None):
         # account_id로 User 객체를 가져옵니다.
-        user = get_object_or_404(User, account_id=account_id)
+        user = request.user
+        
+        plant_id = request.GET.get('plant_id', None)
         
         # User ID와 식물 닉네임으로 식물 조회
         plant = get_object_or_404(
             Plant.objects.select_related('plant_type_id'),
-            user_id=user, plant_nickname=plant_nickname
+            user_id=user, id=plant_id
         )
         
         # 요청을 보낸 사용자가 식물의 소유자와 일치하는지 확인합니다.
