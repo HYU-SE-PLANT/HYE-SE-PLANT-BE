@@ -81,7 +81,7 @@ class PlantDetail(APIView):
         
         plant_id = request.GET.get('plant_id', None)
         
-        # User ID와 식물 닉네임으로 식물 조회
+        # User ID와 식물 id로 식물 조회
         plant = get_object_or_404(
             Plant.objects.select_related('plant_type_id'),
             user_id=user, id=plant_id

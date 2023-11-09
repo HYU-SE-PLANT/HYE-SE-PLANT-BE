@@ -96,8 +96,10 @@ class QuestionDetail(APIView):
             raise Http404
         
     # 질문 상세히 보기
-    def get(self, request, pk, format=None):
-        question = self.get_object(pk)
+    def get(self, request, format=None):
+        question_id = request.GET.get('question_id', None)
+        
+        question = self.get_object(question_id)
         serializer = QuestionSerializer(question)
         
         question_data = []
