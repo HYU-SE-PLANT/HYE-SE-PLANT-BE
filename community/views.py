@@ -36,8 +36,13 @@ class QuestionList(APIView):
 
         for element in dataList:
             del element['comments'] # comments 부분은 안 보여주기
+            del element['user']
         
-        return Response(dataList,status=status.HTTP_200_OK)
+        response_data = {
+            'DATA': dataList
+        }
+        
+        return Response(response_data,status=status.HTTP_200_OK)
     
 
 # 새로운 질문 등록
@@ -94,7 +99,28 @@ class QuestionDetail(APIView):
     def get(self, request, pk, format=None):
         question = self.get_object(pk)
         serializer = QuestionSerializer(question)
-        return Response(serializer.data)
+        
+        question_data = []
+        data = serializer.data
+        data['is_answered'] = get_question_is_answered(question)
+        question_data.append(data) # is_answered 추가
+        
+        # comments, user 제거
+        dataList = question_data
+        for element in dataList:
+            del element['comments']
+            del element['user']
+            
+        comments_data = serializer.data['comments']
+        for comment in comments_data:
+            comment.pop('question', None) # question 제거
+        
+        response_data = {
+            'question': dataList,
+            'comment': comments_data
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
     
     # 질문 수정하기
     def patch(self, request, pk, format=None):

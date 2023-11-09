@@ -38,8 +38,6 @@ class PlantList(APIView):
             
         return Response(response_data, status=status.HTTP_200_OK)
     
-    # TODO: API 명세서 - {[식물 정보], garden_size: 0} 와 같이 garden_size를 식물 정보 외곽에 나타낼 수 있게 하기
-    
 
 # 식물 세부정보 등록 - 백엔드에서 직접 넣기(1순위)
 class PlantType(APIView):

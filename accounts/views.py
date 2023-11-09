@@ -95,8 +95,6 @@ class UserInfoAPIView(APIView):
                 "tiiun_number": serializer.data['tiiun_number'],
                 "garden_size": serializer.data['garden_size'],
                 "address": serializer.data['address'],
-                "date_joined": serializer.data['date_joined'],
-                "date_updated": serializer.data['date_updated'],
             },                
             status=status.HTTP_200_OK
         )
