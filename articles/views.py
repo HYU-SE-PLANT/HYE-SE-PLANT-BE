@@ -21,3 +21,16 @@ class ArticleList(APIView):
         articles = Article.objects.all()
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+# Article 등록하기 - 백엔드에서 직접 넣어줄 예정
+class ArticleCreate(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [JWTAuthentication]
+    
+    def post(self, request):
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
