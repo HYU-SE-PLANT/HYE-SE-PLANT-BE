@@ -109,7 +109,6 @@ class QuestionDetail(APIView):
         question = self.get_object(question_id)
         serializer = QuestionSerializer(question)
         
-        
         question_data = serializer.data
         question_data['is_answered'] = get_question_is_answered(question)
         del question_data['comments']
