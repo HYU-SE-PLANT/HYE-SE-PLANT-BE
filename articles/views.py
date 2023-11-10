@@ -16,8 +16,8 @@ class ArticleList(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     
+    # Article 목록 불러오기
     def get(self, request):
         articles = Article.objects.all()
-        serializer = ArticleSerializer(articles)
+        serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
