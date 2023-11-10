@@ -24,4 +24,5 @@ urlpatterns = [
     path('chatGPT/', include('chatting.urls')),
     path('community/', include('community.urls')),
     path('plants/', include('plants.urls')),
+    path('articles/', include('articles.urls')),
 ]
