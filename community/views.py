@@ -109,24 +109,19 @@ class QuestionDetail(APIView):
         question = self.get_object(question_id)
         serializer = QuestionSerializer(question)
         
-        question_data = []
-        data = serializer.data
-        data['is_answered'] = get_question_is_answered(question)
-        question_data.append(data) # is_answered 추가
         
-        # comments, user 제거
-        dataList = question_data
-        for element in dataList:
-            del element['comments']
-            del element['user']
+        question_data = serializer.data
+        question_data['is_answered'] = get_question_is_answered(question)
+        del question_data['comments']
+        del question_data['user']
             
-        comments_data = serializer.data['comments']
-        for comment in comments_data:
-            comment.pop('question', None) # question 제거
+        comments = serializer.data['comments']
+        comment_data = comments[0] if comments else {}
+        comment_data.pop('question', None)
         
         response_data = {
-            'question': dataList,
-            'comment': comments_data
+            'question': question_data,
+            'comment': comment_data
         }
         
         return Response(response_data, status=status.HTTP_200_OK)
