@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'chatting',
     'community',
     'plants',
+    'articles',
 ]
 
 MIDDLEWARE = [
