@@ -20,7 +20,10 @@ class ArticleList(APIView):
     def get(self, request):
         articles = Article.objects.all()
         serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_data = {
+            'DATA': serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
     
 
 # Article 등록하기 - 백엔드에서 직접 넣어줄 예정
