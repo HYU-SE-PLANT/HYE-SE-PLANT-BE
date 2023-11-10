@@ -55,3 +55,8 @@ class Plant_Disease_Record(models.Model):
     
     def __str__(self):
         return self.created_at
+    
+# test
+class Sample(models.Model):
+    id = models.AutoField(primary_key=True, null=False, blank=False)
+    diagnose_photo_url = models.CharField(max_length=255, null=False, blank=False)

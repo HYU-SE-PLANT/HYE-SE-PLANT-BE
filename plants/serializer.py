@@ -16,3 +16,8 @@ class PlantSerializer(serializers.ModelSerializer):
         model = Plant
         fields = '__all__'
         
+# test
+class SampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sample
+        fields = '__all__'

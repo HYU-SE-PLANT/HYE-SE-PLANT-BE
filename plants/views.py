@@ -1,6 +1,6 @@
 from .models import *
 from .serializer import *
-from .utils import determine_is_harvested, calculate_growth_level, is_blank
+from .utils import *
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -180,4 +180,18 @@ class PlantDetail(APIView):
             }            
             
             return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+# 식물 진단하기
+class PlantDiseaseRecord(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        resnet_AI_to_check_disease(request.data['diagnose_photo_url'])
+        
+        serializer = SampleSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

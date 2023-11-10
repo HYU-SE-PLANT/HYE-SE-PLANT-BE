@@ -1,5 +1,12 @@
 from django.utils import timezone
 
+# tensorflow 관련
+import tensorflow as tf
+import numpy as np
+import os
+from keras.preprocessing import image
+from PIL import Image
+
 
 # is_harvested 를 결정하는 함수
 def determine_is_harvested(harvested_at):
@@ -32,3 +39,64 @@ def calculate_growth_level(plant_type, planted_at):
 # 수정하고자 하는 정보가 빈칸인지 확인
 def is_blank(data):
     return data.strip() == ''
+
+
+# tensorflow 관련 code
+def resnet_AI_to_check_disease(diagnose_photo_url):
+    height,width=180,180
+
+    class_names = [ 
+        'Corn___Common_rust', 
+        'Corn___Gray_leaf_spot', 
+        'Corn___Northern_Leaf_Blight', 
+        'Corn___healthy', 
+        'Potato___Early_blight', 
+        'Potato___Late_blight', 
+        'Potato___healthy', 
+        'Strawberry___Leaf_scorch', 
+        'Strawberry___healthy', 
+        'Tomato___Early_blight', 
+        'Tomato___Late_blight',
+        'Tomato___Target_Spot', 
+        'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 
+        'Tomato___healthy'
+    ]
+        
+    # 로컬 이미지 경로 설정
+    url = diagnose_photo_url
+
+    os.system("curl " + url + " > test2.jpg")
+
+    # 이미지 불러오기
+    local_image_path = "./test2.jpg"
+
+    # 이미지 불러오기
+    img = image.load_img(local_image_path, target_size=(height, width))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  # 배치 차원 추가
+    
+    PATH_TO_MODEL = 'plants/model.tflite'
+
+    interpreter = tf.lite.Interpreter(model_path=PATH_TO_MODEL)
+    interpreter.allocate_tensors()
+
+    # Get input and output tensors.
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    # Test the model on random input data.
+    input_shape = input_details[0]['shape']
+    input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+
+    interpreter.invoke()
+    
+    classify_lite = interpreter.get_signature_runner('serving_default')
+
+    predictions_lite = classify_lite(resnet50_input = img_array)['dense_1']
+
+    # 클래스 이름과 신뢰도 출력
+    print(
+        "This image most likely belongs to {} with a {:.2f} percent confidence."
+        .format(class_names[np.argmax(predictions_lite)], 100 * np.max(predictions_lite))
+    )
