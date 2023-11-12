@@ -7,6 +7,7 @@ urlpatterns = [
     path('create', PlantCreate.as_view()),
     path('type', PlantType.as_view()),
     path('plant_detail', PlantDetail.as_view()),
+    path('disease_type', PlantDiseaseType.as_view()),
     # test
     path('disease_record', PlantDiseaseRecord.as_view()),
 ]
