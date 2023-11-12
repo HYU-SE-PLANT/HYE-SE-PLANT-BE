@@ -183,14 +183,18 @@ class PlantDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
+    
+    
+    
 # 식물 진단하기
 class PlantDiseaseRecord(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     
     def post(self, request):
         resnet_AI_to_check_disease(request.data['diagnose_photo_url'])
         
-        serializer = SampleSerializer(data=request.data)
+        serializer = PlantDiseaseRecordSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

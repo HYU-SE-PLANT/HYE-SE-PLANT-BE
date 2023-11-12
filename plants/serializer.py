@@ -22,6 +22,11 @@ class PlantSerializer(serializers.ModelSerializer):
 #         model = Sample
 #         fields = '__all__'
 
+class PlantDiseaseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plant_Disease_Type
+        fields = '__all__'
+
 
 class PlantDiseaseRecordSerializer(serializers.ModelSerializer):
     class Meta:
