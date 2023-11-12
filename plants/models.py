@@ -25,9 +25,9 @@ class Plant_Type(models.Model):
 
 class Plant_Disease_Type(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
-    plant_disease_name = models.CharField(max_length=100, null=False)
-    plant_disease_symptom = models.CharField(max_length=255, null=False)
-    plant_disease_condition = models.CharField(max_length=255, null=False)
+    plant_disease_name = models.CharField(max_length=100, null=False, blank=False)
+    plant_disease_symptom = models.CharField(max_length=255, null=True, blank=True)
+    plant_disease_condition = models.CharField(max_length=255, null=True, blank=True)
     
     def __str__(self):
         return self.plant_disease_name
