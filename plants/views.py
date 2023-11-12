@@ -38,7 +38,7 @@ class PlantList(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
     
 
-# 식물 세부정보 등록 - 백엔드에서 직접 넣기(1순위)
+# 식물 세부정보 등록 - 백엔드에서 직접 추가(1순위)
 class PlantType(APIView):
     permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
     authentication_classes = [JWTAuthentication]
@@ -49,8 +49,6 @@ class PlantType(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # TODO: 현재 토마토 정보만 들어가 있음. 기타 작물 정보도 추가할 것
 
 
 # 새로운 식물 등록(2순위)
@@ -183,8 +181,18 @@ class PlantDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-    
-    
+# 식물 질병 목록 등록 - 백엔드에서 직접 추가
+class PlantDiseaseType(APIView):
+    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+        serializer = PlantDiseaseTypeSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 # 식물 진단하기
 class PlantDiseaseRecord(APIView):
