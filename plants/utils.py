@@ -44,7 +44,7 @@ def is_blank(data):
 # tensorflow 관련 code
 def resnet_AI_to_check_disease(diagnose_photo_url):
     height,width=180,180
-
+    '''
     class_names = [ 
         'Corn___Common_rust', 
         'Corn___Gray_leaf_spot', 
@@ -61,6 +61,7 @@ def resnet_AI_to_check_disease(diagnose_photo_url):
         'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 
         'Tomato___healthy'
     ]
+    '''
         
     # 로컬 이미지 경로 설정
     url = diagnose_photo_url
@@ -95,8 +96,25 @@ def resnet_AI_to_check_disease(diagnose_photo_url):
 
     predictions_lite = classify_lite(resnet50_input = img_array)['dense_1']
 
-    # 클래스 이름과 신뢰도 출력
-    print(
-        "This image most likely belongs to {} with a {:.2f} percent confidence."
-        .format(class_names[np.argmax(predictions_lite)], 100 * np.max(predictions_lite))
-    )
+    return (np.argmax(predictions_lite) + 1)
+
+
+def getPredictedName(idx):
+    class_names = [ 
+        'Corn Common rust', 
+        'Corn Gray leaf spot', 
+        'Corn Northern Leaf Blight', 
+        'Corn healthy', 
+        'Potato Early blight', 
+        'Potato Late blight', 
+        'Potato healthy', 
+        'Strawberry Leaf scorch', 
+        'Strawberry healthy', 
+        'Tomato Early blight', 
+        'Tomato Late blight',
+        'Tomato Target Spot', 
+        'Tomato Tomato Yellow Leaf Curl Virus', 
+        'Tomato healthy'
+    ]
+    print(class_names[idx - 1])
+    return class_names[idx - 1]

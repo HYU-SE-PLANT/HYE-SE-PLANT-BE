@@ -38,7 +38,7 @@ class PlantList(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
     
 
-# 식물 세부정보 등록 - 백엔드에서 직접 넣기(1순위)
+# 식물 세부정보 등록 - 백엔드에서 직접 추가(1순위)
 class PlantType(APIView):
     permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
     authentication_classes = [JWTAuthentication]
@@ -49,8 +49,6 @@ class PlantType(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # TODO: 현재 토마토 정보만 들어가 있음. 기타 작물 정보도 추가할 것
 
 
 # 새로운 식물 등록(2순위)
@@ -183,15 +181,82 @@ class PlantDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-# 식물 진단하기
-class PlantDiseaseRecord(APIView):
-    permission_classes = [permissions.AllowAny]
-    
+# 식물 질병 목록 등록 - 백엔드에서 직접 추가
+class PlantDiseaseTypeView(APIView):
+    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
+    authentication_classes = [JWTAuthentication]
+
     def post(self, request):
-        resnet_AI_to_check_disease(request.data['diagnose_photo_url'])
-        
-        serializer = SampleSerializer(data=request.data)
+        serializer = PlantDiseaseTypeSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+# 식물 진단하기
+class PlantDiseaseRecordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # 사진 촬용하여 AI로 판단하기
+    def post(self, request):
+        tmp_dict={}
+        disease_id = resnet_AI_to_check_disease(request.data['diagnose_photo_url'])
+        
+        tmp_dict['disease_id']=str(disease_id)
+        tmp_dict['plant_id']=Plant.objects.get(id=request.data['plant_id'] ).pk
+        tmp_dict['diagnose_photo_url']=request.data['diagnose_photo_url']
+
+        serializer = PlantDiseaseRecordSerializer(data=tmp_dict)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 진단 받은 리스트 불러오기 - 하나의 식물에 대해서 리스트 불러오기
+    def get(self, request, format=None):
+        plant_id = request.GET.get('plant_id', None)
+        disease_data = Plant_Disease_Record.objects.filter(plant_id=plant_id, plant_id__user_id=request.user)
+        plant_disease_data = []
+        
+        for data in disease_data:
+            serialized_data = PlantDiseaseRecordSerializer(data).data
+            plant = Plant.objects.get(id=data.plant_id.id)
+
+            serialized_data['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
+            serialized_data['plant_disease_name'] = getPredictedName(int(serialized_data['disease_id']))
+            plant_disease_data.append(serialized_data)
+            serialized_data.pop('plant_id', None)
+            serialized_data.pop('disease_id', None)
+        
+        response_data = {
+            'DATA': plant_disease_data,
+            'plant_nickname': plant.plant_nickname
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
+    
+    
+# 식물 진단한 기록 상세히 보기
+class PlantDiseaseRecordDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    
+    def get(self, request):
+        disease_record_id = request.GET.get('disease_record_id', None)
+        
+        disease_record = Plant_Disease_Record.objects.get(id=disease_record_id)
+        serialized_data = PlantDiseaseRecordSerializer(disease_record).data
+        
+        plant = Plant.objects.get(id=disease_record.plant_id.id)
+        disease_type = Plant_Disease_Type.objects.get(id=disease_record.disease_id.id)
+        
+        serialized_data['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
+        serialized_data['plant_disease_name'] = getPredictedName(int(serialized_data['disease_id']))
+        serialized_data['plant_disease_symptom'] = disease_type.plant_disease_symptom
+        serialized_data['plant_disease_condition'] = disease_type.plant_disease_condition
+        serialized_data['plant_nickname'] = plant.plant_nickname
+        serialized_data.pop('plant_id', None)
+        serialized_data.pop('disease_id', None)
+        
+        return Response(serialized_data, status=status.HTTP_200_OK)

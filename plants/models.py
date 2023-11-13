@@ -25,9 +25,9 @@ class Plant_Type(models.Model):
 
 class Plant_Disease_Type(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
-    plant_disease_name = models.CharField(max_length=100, null=False)
-    plant_disease_symptom = models.CharField(max_length=255, null=False)
-    plant_disease_condition = models.CharField(max_length=255, null=False)
+    plant_disease_name = models.CharField(max_length=100, null=False, blank=False)
+    plant_disease_symptom = models.CharField(max_length=255, null=True, blank=True)
+    plant_disease_condition = models.CharField(max_length=255, null=True, blank=True)
     
     def __str__(self):
         return self.plant_disease_name
@@ -51,7 +51,7 @@ class Plant_Disease_Record(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     diagnose_photo_url = models.CharField(max_length=255, null=False, blank=False)
     plant_id = models.ForeignKey(Plant, null=False, blank=False, on_delete=models.CASCADE)
-    disease_id = models.ForeignKey(Plant_Disease_Type, null=False, blank=False, on_delete=models.CASCADE)
+    disease_id = models.ForeignKey(Plant_Disease_Type, null=True, blank=True, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.created_at
