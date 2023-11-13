@@ -199,6 +199,7 @@ class PlantDiseaseRecord(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     
+    # 사진 촬용하여 AI로 판단하기
     def post(self, request):
         resnet_AI_to_check_disease(request.data['diagnose_photo_url'])
         
@@ -207,3 +208,24 @@ class PlantDiseaseRecord(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 진단 받은 리스트 불러오기
+    def get(self, request, format=None):
+        plant_id = request.GET.get('plant_id', None)
+        disease_data = PlantDiseaseRecord.objects.filter(plant_id=plant_id, user=request.user)
+        plant_disease_data = []
+        
+        for data in disease_data:
+            serialized_data = PlantDiseaseRecordSerializer(data).data
+            plant = Plant.objects.get(id=data.plant_id)
+
+            serialized_data['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
+            serialized_data['plant_disease_name'], data['disease_id'] = resnet_AI_to_check_disease(data.diagnose_photo_url)
+            plant_disease_data.append(serialized_data)
+        
+        response_data = {
+            'DATA': plant_disease_data,
+            'plant_nickname': plant.plant_nickname
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
