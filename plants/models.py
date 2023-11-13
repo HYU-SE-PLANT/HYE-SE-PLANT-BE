@@ -54,7 +54,7 @@ class Plant_Disease_Record(models.Model):
     disease_id = models.ForeignKey(Plant_Disease_Type, null=True, blank=True, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.created_at
+        return str(self.id)
     
 # test
 class Sample(models.Model):
