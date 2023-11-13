@@ -44,7 +44,7 @@ def is_blank(data):
 # tensorflow 관련 code
 def resnet_AI_to_check_disease(diagnose_photo_url):
     height,width=180,180
-
+    '''
     class_names = [ 
         'Corn___Common_rust', 
         'Corn___Gray_leaf_spot', 
@@ -61,6 +61,7 @@ def resnet_AI_to_check_disease(diagnose_photo_url):
         'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 
         'Tomato___healthy'
     ]
+    '''
         
     # 로컬 이미지 경로 설정
     url = diagnose_photo_url
@@ -95,57 +96,25 @@ def resnet_AI_to_check_disease(diagnose_photo_url):
 
     predictions_lite = classify_lite(resnet50_input = img_array)['dense_1']
 
-    # 클래스 이름과 신뢰도 출력
-    print(
-        "This image most likely belongs to {} with a {:.2f} percent confidence."
-        .format(class_names[np.argmax(predictions_lite)], 100 * np.max(predictions_lite))
-    )
-    
-    predicted_class = class_names[np.argmax(predictions_lite)]
-    predicted_status = ""
-    disease_type_id = ""
-    
-    if predicted_class == 'Corn___Common_rust':
-        predicted_status = 'Corn common rust'
-        disease_type_id = '1'
-    elif predicted_class == 'Corn___Gray_leaf_spot':
-        predicted_status = 'Corn gray leaf spot'
-        disease_type_id = '2'
-    elif predicted_class == 'Corn___Northern_Leaf_Blight':
-        predicted_status = 'Corn northern leaf blight'
-        disease_type_id = '3'
-    elif predicted_class == 'Corn___healthy':
-        predicted_status = 'Corn healthy'
-        disease_type_id = '4'
-    elif predicted_class == 'Potato___Early_blight':
-        predicted_status = 'Potato early blight'
-        disease_type_id = '5'
-    elif predicted_class == 'Potato___Late_blight':
-        predicted_status = 'Potato late blight'
-        disease_type_id = '6'
-    elif predicted_class == 'Potato___healthy':
-        predicted_status = 'Potato healthy'
-        disease_type_id = '7'
-    elif predicted_class == 'Strawberry___Leaf_scorch':
-        predicted_status = 'Strawberry leaf scorch'
-        disease_type_id = '8'
-    elif predicted_class == 'Strawberry___healthy':
-        predicted_status = 'Strawberry healthy'
-        disease_type_id = '9'
-    elif predicted_class == 'Tomato___Early_blight':
-        predicted_status = 'Tomato early blight'
-        disease_type_id = '10'
-    elif predicted_class == 'Tomato___Late_blight':
-        predicted_status = 'Tomato late blight'
-        disease_type_id = '11'
-    elif predicted_class == 'Tomato___Target_Spot':
-        predicted_status = 'Tomato target spot'
-        disease_type_id = '12'
-    elif predicted_class == 'Tomato___Tomato_Yellow_Leaf_Curl_Virus':
-        predicted_status = 'Tomato yellow leaf curl virus'
-        disease_type_id = '13'
-    elif predicted_class == 'Tomato___healthy':
-        predicted_status = 'Tomato healthy'
-        disease_type_id = '14'
-        
-    return predicted_status, disease_type_id
+    return (np.argmax(predictions_lite) + 1)
+
+
+def getPredictedName(idx):
+    class_names = [ 
+        'Corn Common rust', 
+        'Corn Gray leaf spot', 
+        'Corn Northern Leaf Blight', 
+        'Corn healthy', 
+        'Potato Early blight', 
+        'Potato Late blight', 
+        'Potato healthy', 
+        'Strawberry Leaf scorch', 
+        'Strawberry healthy', 
+        'Tomato Early blight', 
+        'Tomato Late blight',
+        'Tomato Target Spot', 
+        'Tomato Tomato Yellow Leaf Curl Virus', 
+        'Tomato healthy'
+    ]
+    print(class_names[idx - 1])
+    return class_names[idx - 1]

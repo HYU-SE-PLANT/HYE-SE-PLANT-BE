@@ -51,7 +51,7 @@ class Plant_Disease_Record(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     diagnose_photo_url = models.CharField(max_length=255, null=False, blank=False)
     plant_id = models.ForeignKey(Plant, null=False, blank=False, on_delete=models.CASCADE)
-    disease_id = models.ForeignKey(Plant_Disease_Type, null=False, blank=False, on_delete=models.CASCADE)
+    disease_id = models.ForeignKey(Plant_Disease_Type, null=True, blank=True, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.created_at
