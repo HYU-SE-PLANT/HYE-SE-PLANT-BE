@@ -250,7 +250,9 @@ class PlantDiseaseRecordDetailView(APIView):
         
         plant = Plant.objects.get(id=disease_record.plant_id.id)
         disease_type = Plant_Disease_Type.objects.get(id=disease_record.disease_id.id)
+        plant_name = plant.plant_type_id.plant_name
         
+        serialized_data['plant_name'] = plant_name
         serialized_data['growth_level'] = calculate_growth_level(plant.plant_type_id, plant.planted_at)
         serialized_data['plant_disease_name'] = getPredictedName(int(serialized_data['disease_id']))
         serialized_data['plant_disease_symptom'] = disease_type.plant_disease_symptom
