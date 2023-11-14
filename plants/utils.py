@@ -24,7 +24,7 @@ def calculate_growth_level(plant_type, planted_at):
     모든 경우가 아닐 경우, 비활성기(nothing)을 반환한다.
     """
     today = timezone.now().date()
-    days_since_planted = (today - planted_at.date()).days
+    days_since_planted = (today - planted_at.date()).days + 1
     
     if plant_type.germination_period_start <= days_since_planted <= plant_type.germination_period_end:
             return 'germination'
