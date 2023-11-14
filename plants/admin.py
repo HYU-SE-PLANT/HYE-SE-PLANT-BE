@@ -1,10 +1,15 @@
 from django.contrib import admin
 from plants.models import *
+from django.utils import timezone
 
 
 # Register your models here.
 class PlantCheck(admin.ModelAdmin):
-    list_display = ('id', 'plant_nickname', 'user_id', 'plant_type_id', 'planted_at', 'harvested_at')
+    list_display = ('id', 'plant_nickname', 'days_since_planted', 'user_id', 'plant_type_id', 'planted_at', 'harvested_at')
+    
+    def days_since_planted(self, obj):
+        today = timezone.now().date()
+        return (today - obj.planted_at.date()).days + 1
 
 
 class PlantDiseaseTypeCheck(admin.ModelAdmin):
