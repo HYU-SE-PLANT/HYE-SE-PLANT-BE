@@ -1,28 +1,32 @@
 import openai
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
+from plants.models import Plant
+from plants.serializer import PlantSerializer, PlantTypeSerializer
 
 openai.api_key = settings.CHAT_GPT_API_KEY
 
-def send_sentence_to_api(sentence):
-    res = openai.ChatCompletion.create(
+
+def generate_chatgpt_response(self, user_chat_data):
+    plant_id = user_chat_data.get('plant_id')
+    plant = get_object_or_404(Plant, pk=plant_id)
+    
+    plant_serializer = PlantSerializer(plant)
+    plant_type_serializer = PlantTypeSerializer(plant.plant_type_id)
+    
+    prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}, 사용자 질문: {user_chat_data['chatting_content']}"
+    response = openai.ChatCompletion.create(
         model="gpt-4",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a plant called strawberry that was planted on September 1st of this year. You have to answer from Strawberry's perspective."
-            },
-            {
-                "role": "assistant",
-                "content": "The ambient temperature fluctuates between 17 and 18 degrees. It's a little humid. The soil in which you're planted is a well-draining, water-holding loam. The acidity of the soil is slightly acidic. The temperature of the ground is 20 degrees."
-            },
-            {
-                "role": "user",
-                "content": f"{sentence}"
-            },
-        ],
+        message=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
     )
-    return res["choices"][0]["message"]["content"]
-
-
-# assistant로 설정해둬야 앞서서 이야기 한 내용과 같이 이어서 계속 대화를 이어나갈 수 있음
+    
+    chatgpt_response = response['choices'][0]['message']['content']
+    return {
+        'chatting_content': chatgpt_response.strip(),
+        'is_user_chat': False,
+        'plant_id': plant_id
+    }
