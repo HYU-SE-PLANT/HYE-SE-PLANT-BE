@@ -18,6 +18,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from BloomMate_backend.settings import SECRET_KEY
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 # 회원가입 view
@@ -168,3 +169,39 @@ class UserInfoAPIView(APIView):
             status=status.HTTP_202_ACCEPTED)
         response.delete_cookie("access")
         return response
+    
+    
+# 토큰 확인
+class JWTtokenVerifyView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self,request):
+        token = request.COOKIES.get("access")
+
+        if not token :
+            return Response(
+                {
+                    "message": "토큰이 쿠키에 존재하지 않습니다."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try :
+            # 토큰 디코드 검증
+            decoded_token = AccessToken(token)
+            return Response(
+                {
+                    "message": "토큰이 유효합니다.",
+                    "token_data": decoded_token.payload
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            # 토큰 검증 에러 처리
+            return Response(
+                {
+                    "message": "토큰이 유효하지 않습니다.",
+                    "error": str(0)
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
