@@ -9,24 +9,50 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .serializer import PlantChatSerializer
 from .models import PlantReplier
+from .utils import generate_chatgpt_response
 
 
 class PlantChattingView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     
-    def get(self, request, format=None):
-        qs = PlantReplier.objects.all()
-        serializer = PlantChatSerializer(qs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def get(self, request, format=None):
+    #     qs = PlantReplier.objects.all()
+    #     serializer = PlantChatSerializer(qs, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
     
+    # 채팅하기
     def post(self, request, format=None):
-        serializer = PlantChatSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        plant_id = request.GET.get('plant_id', None)
+        is_user_chat = request.data.get('is_user_chat', True)
+        
+        # 사용자 입력 처리
+        if is_user_chat:
+            user_chat_data = request.data
+            user_chat_data['plant_id'] = plant_id
+            user_chat_data['is_user_chat'] = True
+            serializer = PlantChatSerializer(data=user_chat_data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                chatgpt_response = generate_chatgpt_response(serializer.data)
+                
+                # chatgpt 응답 저장
+                response_serializer = PlantChatSerializer(data=chatgpt_response)
+                if response_serializer.is_valid(raise_exception=True):
+                    response_serializer.save()
+                
+                return Response(chatgpt_response, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+        # chatgpt 응답 처리
+        else:
+            chatgpt_data = request.data
+            chatgpt_data['plant_id'] = plant_id
+            serializer = PlantChatSerializer(data=chatgpt_data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 # postman으로 확인하는 방법
 # JWT token과 chatGPT api token 2가지를 동시에 사용해야 함

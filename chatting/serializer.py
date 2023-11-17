@@ -13,7 +13,7 @@ class PlantChatSerializer(serializers.ModelSerializer):
         model = PlantReplier
         fields = ['chatting_content', 'is_user_chat', 'plant_id', 'plant_info', 'plant_type_info']
         
-        def get_plant_info(self, obj):
-            # Plant 모델에 대한 정보를 반환하는 메서드
-            plant = obj.plant_id
-            return PlantSerializer(plant).data
+    def get_plant_info(self, obj):
+        # Plant 모델에 대한 정보를 반환하는 메서드
+        plant = obj.plant_id
+        return PlantSerializer(plant).data

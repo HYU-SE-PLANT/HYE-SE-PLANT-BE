@@ -8,7 +8,7 @@ from plants.serializer import PlantSerializer, PlantTypeSerializer
 openai.api_key = settings.CHAT_GPT_API_KEY
 
 
-def generate_chatgpt_response(self, user_chat_data):
+def generate_chatgpt_response(user_chat_data):
     plant_id = user_chat_data.get('plant_id')
     plant = get_object_or_404(Plant, pk=plant_id)
     
@@ -18,8 +18,8 @@ def generate_chatgpt_response(self, user_chat_data):
     prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}, 사용자 질문: {user_chat_data['chatting_content']}"
     response = openai.ChatCompletion.create(
         model="gpt-4",
-        message=[
-            {"role": "system", "content": "You are a helpful assistant."},
+        messages=[
+            {"role": "system", "content": "You are a plant who receives the information from prompt."},
             {"role": "user", "content": prompt}
         ]
     )
