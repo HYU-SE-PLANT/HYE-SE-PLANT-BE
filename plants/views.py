@@ -62,14 +62,13 @@ class PlantCreate(APIView):
             serializer.save(user_id = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    # TODO: garden_size와 연계하여, 식물 등록 일정 개수 넘기지 않도록 설정하기
-    
+
 
 # 등록한 식물의 세부 정보 확인(3순위)
 class PlantDetail(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
         
     # 식물 정보 자세히 보기
     def get(self, request, format=None):
@@ -180,6 +179,26 @@ class PlantDetail(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    # 식물 삭제하기
+    def delete(self, request, format=None):
+        user = request.user
+        plant_id = request.GET.get('plant_id', None)
+        plant = get_object_or_404(Plant, user_id=user, id=plant_id)
+        
+        if not request.user == plant.user_id:
+            return Response({
+                "detail": "잘못된 접근입니다."
+            },
+            status=status.HTTP_403_FORBIDDEN
+        )
+            
+        plant.delete()
+        return Response({
+            "message": "등록한 식물이 삭제되었습니다."
+        },
+        status=status.HTTP_204_NO_CONTENT
+        )
+
     
 # 식물 질병 목록 등록 - 백엔드에서 직접 추가
 class PlantDiseaseTypeView(APIView):
