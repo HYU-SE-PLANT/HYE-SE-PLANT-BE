@@ -86,7 +86,7 @@ class PlantDetail(APIView):
         if request.user != user:
             return Response(
                 {
-                    'message': '이 식물에 대한 접근 권한이 없습니다.'
+                    'detail': '이 식물에 대한 접근 권한이 없습니다.'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -123,6 +123,23 @@ class PlantDetail(APIView):
 
         return Response(plant_data, status=status.HTTP_200_OK)
     
+    # 식물 수확하기
+    def post(self, request, format=None):
+        user = request.user
+        plant_id = request.GET.get('plant_id', None)
+        plant = get_object_or_404(Plant, user_id=user, id=plant_id)
+        tmp_dict = {}
+        harvested_at = request.data['harvested_at']
+        
+        tmp_dict['harvested_at']=harvested_at
+        
+        serializer = PlantSerializer(plant, data=tmp_dict, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
     # 식물 정보 수정하기
     def patch(self, request, format=None):
         # account_id로 User 객체를 가져오기
@@ -136,7 +153,7 @@ class PlantDetail(APIView):
         if request.user != user:
             return Response(
                 {
-                    'message': '이 식물에 대한 접근 권한이 없습니다.'
+                    'detail': '이 식물에 대한 접근 권한이 없습니다.'
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -187,7 +204,7 @@ class PlantDetail(APIView):
         
         if not request.user == plant.user_id:
             return Response({
-                "detail": "잘못된 접근입니다."
+                "detail": "이 식물에 대한 접근 권한이 없습니다."
             },
             status=status.HTTP_403_FORBIDDEN
         )
@@ -198,7 +215,7 @@ class PlantDetail(APIView):
         },
         status=status.HTTP_204_NO_CONTENT
         )
-
+    
     
 # 식물 질병 목록 등록 - 백엔드에서 직접 추가
 class PlantDiseaseTypeView(APIView):
