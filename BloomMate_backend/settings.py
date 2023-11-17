@@ -162,5 +162,5 @@ REST_FRAMEWORK = {
 
 # jwt 토큰에 대한 추가 설정
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
