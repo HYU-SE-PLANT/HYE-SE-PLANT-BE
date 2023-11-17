@@ -7,4 +7,4 @@ class PlantReplier(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     chatting_content = models.TextField(null=False, blank=False)
     is_user_chat = models.BooleanField(default=False, null=False)
-    plant = models.ForeignKey(Plant, null=False, blank=False, on_delete=models.CASCADE)
+    plant_id = models.ForeignKey(Plant, null=False, blank=False, on_delete=models.CASCADE)
