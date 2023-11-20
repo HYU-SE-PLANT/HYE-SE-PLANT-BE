@@ -38,7 +38,6 @@ def get_weather_data(user_id):
             'description': data['weather'][0]['description'],
             'city': data['name']
         }
-        print(weather)
         return weather
     else:
         return {'error': '날씨 정보를 찾을 수 없습니다.'}
