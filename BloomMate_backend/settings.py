@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 CHAT_GPT_API_KEY = os.getenv("OPENAI_APIKEY")
+WEATHER_API_KEY = os.getenv("OPENWEATHER_APIKEY")
 
 
 # Quick-start development settings - unsuitable for production

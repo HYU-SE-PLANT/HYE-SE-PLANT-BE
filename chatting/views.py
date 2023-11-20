@@ -9,7 +9,11 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .serializer import PlantChatSerializer
 from .models import PlantReplier
+from accounts.models import User
 from .utils import generate_chatgpt_response
+
+
+# def get_weather_data(address):
 
 
 class PlantChattingView(APIView):
@@ -23,6 +27,7 @@ class PlantChattingView(APIView):
     
     # 채팅하기
     def post(self, request, format=None):
+        user_id = request.user.id
         plant_id = request.GET.get('plant_id', None)
         is_user_chat = request.data.get('is_user_chat', True)
         
@@ -34,7 +39,7 @@ class PlantChattingView(APIView):
             serializer = PlantChatSerializer(data=user_chat_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                chatgpt_response = generate_chatgpt_response(serializer.data)
+                chatgpt_response = generate_chatgpt_response(serializer.data, user_id)
                 
                 # chatgpt 응답 저장
                 response_serializer = PlantChatSerializer(data=chatgpt_response)
