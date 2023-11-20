@@ -1,19 +1,19 @@
 from rest_framework import serializers
 
 from .models import PlantReplier
-from .utils import send_sentence_to_api
+from plants.serializer import PlantSerializer, PlantTypeSerializer
+# from .utils import send_sentence_to_api
 
 
 class PlantChatSerializer(serializers.ModelSerializer):
+    plant_info = serializers.SerializerMethodField()
+    plant_type_info = PlantTypeSerializer(source='plant_id.plant_type_id', read_only=True)
+    
     class Meta:
         model = PlantReplier
-        fields = ("id", "input_text", "output_text")
-        extra_kwargs = {
-            "output_text": {"read_only":True}
-        }
+        fields = ['chatting_content', 'is_user_chat', 'plant_id', 'plant_info', 'plant_type_info']
         
-    def create(self, validated_data):
-        output_text = send_sentence_to_api(validated_data['input_text'])
-        instance = PlantReplier(input_text=validated_data['input_text'], output_text=output_text)
-        instance.save()
-        return instance
+    def get_plant_info(self, obj):
+        # Plant 모델에 대한 정보를 반환하는 메서드
+        plant = obj.plant_id
+        return PlantSerializer(plant).data

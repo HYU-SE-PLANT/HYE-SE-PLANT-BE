@@ -3,5 +3,5 @@ from .views import PlantChattingView
 
 
 urlpatterns = [
-    path('chat/', PlantChattingView.as_view()),
+    path('chat', PlantChattingView.as_view()),
 ]
