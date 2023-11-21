@@ -35,6 +35,7 @@ def get_weather_data(user_id):
     if data.get("cod") == 200:
         weather = {
             'temperature': data['main']['temp'],
+            'humidity': data['main']['humidity'],
             'description': data['weather'][0]['description'],
             'city': data['name']
         }
@@ -53,12 +54,13 @@ def generate_chatgpt_response(user_chat_data, user_id):
     weather_data = get_weather_data(user_id)
     
     prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
-    prompt += f"현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C."
+    prompt += f"현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
     input = f"사용자 질문: {user_chat_data['chatting_content']}"
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a plant who receives the information from prompt. And you can answer freely, if you don't have any information. You must answer by Korean."},
+            {"role": "system", "content": "You are a plant who receives the information from prompt. And you can answer freely, if you don't have any information. \
+                You have to answer by comparing the current weather, temperature, and humidity. You also must say information about you smoothly. You must answer by Korean."},
             {"role": "assistant", "content": prompt},
             {"role": "user", "content": input}
         ]
