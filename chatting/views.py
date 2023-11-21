@@ -10,7 +10,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializer import PlantChatSerializer
 from .models import PlantReplier
 from accounts.models import User
+from plants.models import Plant
 from .utils import generate_chatgpt_response
+
+from django.utils import timezone
 
 
 # def get_weather_data(address):
@@ -20,16 +23,45 @@ class PlantChattingView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     
-    # def get(self, request, format=None):
-    #     qs = PlantReplier.objects.all()
-    #     serializer = PlantChatSerializer(qs, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    # 채팅 불러오기
+    def get(self, request, format=None):
+        user = request.user
+        plant_id = request.GET.get('plant_id', None)
+        date_str = request.GET.get('date', None)
+        date_obj = timezone.datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        chat_records = PlantReplier.objects.filter(
+            plant_id = plant_id,
+            created_at__date = date_obj,
+            plant_id__user_id = user.id
+        )
+        serializer = PlantChatSerializer(chat_records, many=True)
+        
+        plant = Plant.objects.get(id=plant_id)
+        plant_nickname = plant.plant_nickname
+        
+        response_data = {
+            'DATA': [{
+                'id': chat['id'],
+                'chatting_content': chat['chatting_content'],
+                'is_user_chat': chat['is_user_chat'],
+                'created_at': chat['created_at']
+            } for chat in serializer.data],
+            'plant_nickname': plant_nickname
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+        
     
     # 채팅하기
     def post(self, request, format=None):
         user_id = request.user.id
         plant_id = request.GET.get('plant_id', None)
+        selected_date = request.GET.get('date', timezone.now().date().strftime('%Y-%m-%d'))
         is_user_chat = request.data.get('is_user_chat', True)
+        current_date = timezone.now().date()
+        
+        if timezone.datetime.strptime(selected_date, '%Y-%m-%d').date() != current_date:
+            return Response({"error": "오늘 날짜가 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         # 사용자 입력 처리
         if is_user_chat:
