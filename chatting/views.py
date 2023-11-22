@@ -71,7 +71,7 @@ class PlantChattingView(APIView):
             serializer = PlantChatSerializer(data=user_chat_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                chatgpt_response = generate_chatgpt_response(serializer.data, user_id)
+                chatgpt_response = generate_chatgpt_response(serializer.data, user_id, selected_date)
                 
                 # chatgpt 응답 저장
                 response_serializer = PlantChatSerializer(data=chatgpt_response)
