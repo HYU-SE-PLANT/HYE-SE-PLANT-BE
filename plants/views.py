@@ -213,7 +213,7 @@ class PlantDetail(APIView):
         return Response({
             "message": "등록한 식물이 삭제되었습니다."
         },
-        status=status.HTTP_204_NO_CONTENT
+        status=status.HTTP_200_OK
         )
     
     
