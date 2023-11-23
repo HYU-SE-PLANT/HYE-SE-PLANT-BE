@@ -110,6 +110,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     chatgpt_response = response['choices'][0]['message']['content']
     return {
         'chatting_content': chatgpt_response.strip(),
+        'soil_condition': soil_condition,
         'is_user_chat': False,
         'plant_id': plant_id
     }
