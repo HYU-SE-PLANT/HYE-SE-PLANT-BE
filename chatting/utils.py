@@ -17,12 +17,11 @@ weather_api_key = settings.WEATHER_API_KEY
 def get_city_address(user_id):
     user = User.objects.get(id=user_id)
     address = user.address
-    city_name = address.split()
+    address_divided = address.split()
+    address_input = ' '.join(address_divided[0:4])
+    print(address_input)
     
-    if any(suffix in city_name[0] for suffix in ["도"]):
-        return city_name[1]
-    else:
-        return city_name[0]
+    return address_input
 
 
 # 날씨 데이터 받아오기
@@ -82,7 +81,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
         previous_messages = []
     
     prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
-    # prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
+    prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
     prompt += f"\n흙 상태: {soil_condition}"
     
     # 전송할 message 작성
