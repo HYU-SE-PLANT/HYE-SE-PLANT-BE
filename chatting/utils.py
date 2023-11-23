@@ -1,7 +1,7 @@
 import openai
 import requests
 import random
-import datetime
+from django.utils import timezone
 from geopy.geocoders import Nominatim
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -58,13 +58,14 @@ def get_weather_data(user_id):
 
 # 흙 상태 받아오기
 def get_soil_condition(plant_id):
-    current_date = datetime.date.today()
+    current_date = timezone.now().date().strftime('%Y-%m-%d')
     
     if plant_id not in soil_info_cache or soil_info_cache[plant_id]['date'] != current_date:
         soil_condition = ["좋음", "나쁨"]
         selected_condition = random.choice(soil_condition)
         soil_info_cache[plant_id] = {"info": selected_condition, "date": current_date}
         
+    print(soil_info_cache)
     return soil_info_cache[plant_id]["info"]
 
 
@@ -82,6 +83,10 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     # 날씨 정보 가져오기
     weather_data = get_weather_data(user_id)
     
+    # 유저 이름 정보
+    user = User.objects.get(id=user_id)
+    user_name = user.user_name
+    
     # 이전 대화 내용 불러오기
     chat_history = PlantReplier.objects.filter(
         plant_id=plant_id,
@@ -96,7 +101,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     else:
         previous_messages = []
     
-    prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
+    prompt = f"{user_name}의 식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
     prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
     prompt += f"\n흙 상태: {soil_condition}"
     
@@ -104,7 +109,8 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     message_to_send = [
         {"role": "system", "content": f"You are a plant who receives the information from {prompt}. And you can answer freely, if you don't have any information. \
         You have to answer by comparing the current weather, temperature, and humidity. You also must say information about you smoothly. \
-        You don't have to say the information of you when I don't ask you 'How are you today?'. You must answer by Korean."},
+        You don't have to say the information of you when I don't ask you 'How are you today?'. \
+        If you call user, you have to call user by {user_name}. You must answer by Korean."},
     ]
     message_to_send.extend(previous_messages)
     
