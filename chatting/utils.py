@@ -1,6 +1,7 @@
 import openai
 import requests
 import random
+from geopy.geocoders import Nominatim
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -11,6 +12,7 @@ from plants.serializer import PlantSerializer, PlantTypeSerializer
 
 openai.api_key = settings.CHAT_GPT_API_KEY
 weather_api_key = settings.WEATHER_API_KEY
+geo_local = Nominatim(user_agent='South Korea')
 
 
 # 주소 받아오기
