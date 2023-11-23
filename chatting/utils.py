@@ -1,6 +1,7 @@
 import openai
 import requests
 import random
+import datetime
 from geopy.geocoders import Nominatim
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -13,6 +14,7 @@ from plants.serializer import PlantSerializer, PlantTypeSerializer
 openai.api_key = settings.CHAT_GPT_API_KEY
 weather_api_key = settings.WEATHER_API_KEY
 geo_local = Nominatim(user_agent='South Korea')
+soil_info_cache = {}
 
 
 # 주소 받아오기(위도, 경도)
@@ -55,10 +57,15 @@ def get_weather_data(user_id):
 
 
 # 흙 상태 받아오기
-def get_soil_condition():
-    soil_condition = ["좋음", "나쁨"]
-    selected_condition = random.choice(soil_condition)
-    return selected_condition
+def get_soil_condition(plant_id):
+    current_date = datetime.date.today()
+    
+    if plant_id not in soil_info_cache or soil_info_cache[plant_id]['date'] != current_date:
+        soil_condition = ["좋음", "나쁨"]
+        selected_condition = random.choice(soil_condition)
+        soil_info_cache[plant_id] = {"info": selected_condition, "date": current_date}
+        
+    return soil_info_cache[plant_id]["info"]
 
 
 # 채팅 응답 받아오기
@@ -70,7 +77,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     plant_type_serializer = PlantTypeSerializer(plant.plant_type_id)
     
     # 흙 상태 가져오기
-    soil_condition = get_soil_condition()
+    soil_condition = get_soil_condition(plant_id)
     
     # 날씨 정보 가져오기
     weather_data = get_weather_data(user_id)
