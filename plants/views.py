@@ -267,7 +267,7 @@ class PlantDiseaseRecordView(APIView):
         
         response_data = {
             'DATA': plant_disease_data,
-            'plant_nickname': plant.plant_nickname
+            'plant_nickname': Plant.objects.get(id=plant_id).plant_nickname
         }
         
         return Response(response_data, status=status.HTTP_200_OK)
