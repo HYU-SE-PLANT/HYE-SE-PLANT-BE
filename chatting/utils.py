@@ -1,6 +1,7 @@
 from django.utils import timezone
 import openai
 import requests
+import random
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -46,12 +47,22 @@ def get_weather_data(user_id):
         return {'error': '날씨 정보를 찾을 수 없습니다.'}
 
 
+# 흙 상태 받아오기
+def get_soil_condition():
+    soil_condition = ["좋음", "나쁨"]
+    selected_condition = random.choice(soil_condition)
+    return selected_condition
+
+# 채팅 응답 받아오기
 def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     # 식물 정보 가져오기
     plant_id = user_chat_data.get('plant_id')
     plant = get_object_or_404(Plant, pk=plant_id)
     plant_serializer = PlantSerializer(plant)
     plant_type_serializer = PlantTypeSerializer(plant.plant_type_id)
+    
+    # 흙 상태 가져오기
+    soil_condition = get_soil_condition()
     
     # 날씨 정보 가져오기
     weather_data = get_weather_data(user_id)
@@ -60,7 +71,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     chat_history = PlantReplier.objects.filter(
         plant_id=plant_id,
         created_at__date=selected_date
-    ).order_by('-created_at')
+    ).order_by('created_at')
     
     if chat_history.exists():
         previous_messages = [
@@ -72,16 +83,15 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     
     prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
     prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
-    input = f"사용자 질문: {user_chat_data['chatting_content']}"
+    prompt += f"\n흙 상태: {soil_condition}"
     
     # 전송할 message 작성
     message_to_send = [
-        {"role": "system", "content": "You are a plant who receives the information from prompt. And you can answer freely, if you don't have any information. \
-                You have to answer by comparing the current weather, temperature, and humidity. You also must say information about you smoothly. You must answer by Korean."},
-        {"role": "assistant", "content": prompt}
+        {"role": "system", "content": f"You are a plant who receives the information from {prompt}. And you can answer freely, if you don't have any information. \
+        You have to answer by comparing the current weather, temperature, and humidity. You also must say information about you smoothly. \
+        You don't have to say the information of you when I don't ask you 'How are you today?'. You must answer by Korean."},
     ]
     message_to_send.extend(previous_messages)
-    message_to_send.append({"role": "user", "content": input})
     
     # 응답 받아오기
     response = openai.ChatCompletion.create(
