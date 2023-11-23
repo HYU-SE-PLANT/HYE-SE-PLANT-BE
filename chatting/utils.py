@@ -1,4 +1,3 @@
-from django.utils import timezone
 import openai
 import requests
 import random
@@ -53,6 +52,7 @@ def get_soil_condition():
     selected_condition = random.choice(soil_condition)
     return selected_condition
 
+
 # 채팅 응답 받아오기
 def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     # 식물 정보 가져오기
@@ -82,7 +82,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
         previous_messages = []
     
     prompt = f"식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
-    prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
+    # prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
     prompt += f"\n흙 상태: {soil_condition}"
     
     # 전송할 message 작성
