@@ -33,9 +33,10 @@ def get_city_address(user_id):
 
 # 날씨 데이터 받아오기
 def get_weather_data(user_id):
-    city_name = get_city_address(user_id)
+    lat, lon = get_city_address(user_id)
     api_key = weather_api_key
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    url = f"{base_url}?lat={lat}&lon={lon}&appid={api_key}&units=metric"
     
     response = requests.get(url)
     data = response.json()
