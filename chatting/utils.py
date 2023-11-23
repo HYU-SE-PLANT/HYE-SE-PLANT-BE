@@ -15,15 +15,20 @@ weather_api_key = settings.WEATHER_API_KEY
 geo_local = Nominatim(user_agent='South Korea')
 
 
-# 주소 받아오기
+# 주소 받아오기(위도, 경도)
 def get_city_address(user_id):
     user = User.objects.get(id=user_id)
     address = user.address
     address_divided = address.split()
     address_input = ' '.join(address_divided[0:4])
-    print(address_input)
     
-    return address_input
+    try:
+        geo = geo_local(address_input)
+        latitude, longitude = geo.latitude, geo.longitude
+        print(latitude, longitude)
+        return latitude, longitude
+    except:
+        return 0, 0
 
 
 # 날씨 데이터 받아오기
