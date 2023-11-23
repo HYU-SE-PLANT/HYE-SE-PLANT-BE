@@ -23,9 +23,8 @@ def get_city_address(user_id):
     address_input = ' '.join(address_divided[0:4])
     
     try:
-        geo = geo_local(address_input)
+        geo = geo_local.geocode(address_input)
         latitude, longitude = geo.latitude, geo.longitude
-        print(latitude, longitude)
         return latitude, longitude
     except:
         return 0, 0
@@ -34,6 +33,7 @@ def get_city_address(user_id):
 # 날씨 데이터 받아오기
 def get_weather_data(user_id):
     lat, lon = get_city_address(user_id)
+    print(lat, lon)
     api_key = weather_api_key
     base_url = "http://api.openweathermap.org/data/2.5/weather"
     url = f"{base_url}?lat={lat}&lon={lon}&appid={api_key}&units=metric"
@@ -48,6 +48,7 @@ def get_weather_data(user_id):
             'description': data['weather'][0]['description'],
             'city': data['name']
         }
+        print(weather)
         return weather
     else:
         return {'error': '날씨 정보를 찾을 수 없습니다.'}
