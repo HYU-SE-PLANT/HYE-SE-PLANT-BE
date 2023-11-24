@@ -116,5 +116,4 @@ def getPredictedName(idx):
         'Tomato Tomato Yellow Leaf Curl Virus', 
         'Tomato healthy'
     ]
-    print(class_names[idx - 1])
     return class_names[idx - 1]

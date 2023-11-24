@@ -35,7 +35,6 @@ def get_city_address(user_id):
 # 날씨 데이터 받아오기
 def get_weather_data(user_id):
     lat, lon = get_city_address(user_id)
-    print(lat, lon)
     api_key = weather_api_key
     base_url = "http://api.openweathermap.org/data/2.5/weather"
     url = f"{base_url}?lat={lat}&lon={lon}&appid={api_key}&units=metric"
@@ -50,7 +49,6 @@ def get_weather_data(user_id):
             'description': data['weather'][0]['description'],
             'city': data['name']
         }
-        print(weather)
         return weather
     else:
         return {'error': '날씨 정보를 찾을 수 없습니다.'}
@@ -65,7 +63,6 @@ def get_soil_condition(plant_id):
         selected_condition = random.choice(soil_condition)
         soil_info_cache[plant_id] = {"info": selected_condition, "date": current_date}
         
-    print(soil_info_cache)
     return soil_info_cache[plant_id]["info"]
 
 
