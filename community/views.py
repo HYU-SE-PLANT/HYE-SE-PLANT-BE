@@ -1,4 +1,4 @@
-from .models import Question
+from .models import Question, Comment
 from .utils import get_question_is_answered
 from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
@@ -30,16 +30,12 @@ class QuestionList(APIView):
             serializer = QuestionSerializer(question)
             data = serializer.data
             data['is_answered'] = get_question_is_answered(question)
+            data.pop('comment', None)
+            data.pop('user', None)
             question_data.append(data)
         
-        dataList=question_data
-
-        for element in dataList:
-            del element['comments'] # comments 부분은 안 보여주기
-            del element['user']
-        
         response_data = {
-            'DATA': dataList
+            'DATA': question_data
         }
         
         return Response(response_data,status=status.HTTP_200_OK)
@@ -77,10 +73,15 @@ class CommentCreate(APIView):
             question = self.get_object(question_id)
         except Question.DoesNotExist:
             return Response(
-                {
-                    "error": "질문이 존재하지 않습니다."
-                },
+                {"error": "질문이 존재하지 않습니다."},
                 status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # 댓글 존재 여부 확인
+        if Comment.objects.filter(question=question).exists():
+            return Response(
+                {"error": "이미 댓글이 존재합니다. 새로운 댓글을 추가할 수 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
         serializer = CommentSerializer(data=request.data)
@@ -107,16 +108,17 @@ class QuestionDetail(APIView):
     def get(self, request, format=None):
         question_id = request.GET.get('question_id', None)
         question = self.get_object(question_id)
-        serializer = QuestionSerializer(question)
+        question_data = QuestionSerializer(question).data
+
+        try:        
+            comment = Comment.objects.get(question=question)
+            comment_data = CommentSerializer(comment).data
+            del comment_data['question']
+        except:
+            comment_data = {}
         
-        question_data = serializer.data
         question_data['is_answered'] = get_question_is_answered(question)
-        del question_data['comments']
         del question_data['user']
-            
-        comments = serializer.data['comments']
-        comment_data = comments[0] if comments else {}
-        comment_data.pop('question', None)
         
         response_data = {
             'question': question_data,
@@ -132,11 +134,10 @@ class QuestionDetail(APIView):
         
         # 질문자와 수정자가 동일한지 확인
         if not request.user == question.user:
-            return Response({
-                "detail": "직접 작성한 질문이 아닙니다. 질문 수정이 허가되지 않았습니다."
-            },
-            status=status.HTTP_403_FORBIDDEN                    
-        )
+            return Response(
+                {"detail": "직접 작성한 질문이 아닙니다. 질문 수정이 허가되지 않았습니다."},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         serializer = QuestionSerializer(instance=question, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
@@ -151,15 +152,13 @@ class QuestionDetail(APIView):
         
         # 질문자와 수정자가 동일한지 확인
         if not request.user == question.user:
-            return Response({
-                "detail": "직접 작성한 질문이 아닙니다. 질문 삭제가 허가되지 않았습니다."
-            },
-            status=status.HTTP_403_FORBIDDEN
-        )
+            return Response(
+                {"detail": "직접 작성한 질문이 아닙니다. 질문 삭제가 허가되지 않았습니다."},
+                status=status.HTTP_403_FORBIDDEN
+            )
             
         question.delete()
-        return Response({
-                "message": "질문이 삭제되었습니다."
-            },
-            status=status.HTTP_204_NO_CONTENT
+        return Response(
+            {"message": "질문이 삭제되었습니다."},
+            status=status.HTTP_200_OK
         )

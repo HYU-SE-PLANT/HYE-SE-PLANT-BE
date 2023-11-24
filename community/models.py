@@ -16,7 +16,7 @@ class Question(models.Model):
     
 class Comment(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False) # 댓글의 id 값
-    question = models.ForeignKey(Question, related_name='comments', null=False, blank=False, on_delete=models.CASCADE) # 질의응답 - 질문
+    question = models.OneToOneField(Question, related_name='comments', null=False, blank=False, on_delete=models.CASCADE) # 질의응답 - 질문: 1대1 관계
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False) # 댓글 작성 날짜
     comment_content = models.TextField(null=False, blank=False) # 댓글 내용 입력
     
