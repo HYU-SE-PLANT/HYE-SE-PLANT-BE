@@ -78,7 +78,7 @@ class CommentCreate(APIView):
             )
             
         # 댓글 존재 여부 확인
-        if Comment.objects.get(question=question).exists():
+        if Comment.objects.filter(question=question).exists():
             return Response(
                 {"error": "이미 댓글이 존재합니다. 새로운 댓글을 추가할 수 없습니다."},
                 status=status.HTTP_400_BAD_REQUEST
