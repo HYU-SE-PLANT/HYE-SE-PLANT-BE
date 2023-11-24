@@ -82,6 +82,13 @@ class CommentCreate(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+        # 댓글 존재 여부 확인
+        if hasattr(question, 'comment'):
+            return Response(
+                {"error": "이미 댓글이 존재합니다. 새로운 댓글을 추가할 수 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
