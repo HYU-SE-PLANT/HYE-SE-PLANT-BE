@@ -160,5 +160,5 @@ class QuestionDetail(APIView):
         question.delete()
         return Response(
             {"message": "질문이 삭제되었습니다."},
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
