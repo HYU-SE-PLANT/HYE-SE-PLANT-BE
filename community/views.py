@@ -111,12 +111,10 @@ class QuestionDetail(APIView):
         
         question_data = serializer.data
         question_data['is_answered'] = get_question_is_answered(question)
-        del question_data['comments']
+        del question_data['comment']
         del question_data['user']
             
-        comments = serializer.data['comments']
-        comment_data = comments[0] if comments else {}
-        comment_data.pop('question', None)
+        comment_data = serializer.data.get('comment', {})
         
         response_data = {
             'question': question_data,
