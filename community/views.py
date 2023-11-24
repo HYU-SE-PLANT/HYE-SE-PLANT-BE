@@ -1,4 +1,4 @@
-from .models import Question
+from .models import Question, Comment
 from .utils import get_question_is_answered
 from .serializer import QuestionSerializer, CommentSerializer
 from .pagination import CustomResultsSetPagination
@@ -110,19 +110,17 @@ class QuestionDetail(APIView):
     def get(self, request, format=None):
         question_id = request.GET.get('question_id', None)
         question = self.get_object(question_id)
-        serializer = QuestionSerializer(question)
-        
-        question_data = serializer.data
-        
-        # comment 존재 확인
-        if 'comment' in question_data:
-            comment_data = question_data['comment']
+        question_data = QuestionSerializer(question).data
+
+        try:        
+            comment = Comment.objects.get(question=question)
+            comment_data = CommentSerializer(comment).data
+            del comment_data['question']
+        except:
+            comment_data = {}
         
         question_data['is_answered'] = get_question_is_answered(question)
-        # del question_data['comment']
-        # del question_data['user']
-            
-        comment_data = serializer.data.get('comment', {})
+        del question_data['user']
         
         response_data = {
             'question': question_data,
