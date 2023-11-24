@@ -16,7 +16,6 @@ class CommentSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     # account_id 받아올 것
     user = serializers.ReadOnlyField(source = 'user.account_id')
-    # comment = CommentSerializer(read_only=True)
     
     class Meta:
         model = Question
