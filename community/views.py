@@ -30,16 +30,12 @@ class QuestionList(APIView):
             serializer = QuestionSerializer(question)
             data = serializer.data
             data['is_answered'] = get_question_is_answered(question)
+            data.pop('comment', None)
+            data.pop('user', None)
             question_data.append(data)
         
-        dataList=question_data
-
-        for element in dataList:
-            del element['comments'] # comments 부분은 안 보여주기
-            del element['user']
-        
         response_data = {
-            'DATA': dataList
+            'DATA': question_data
         }
         
         return Response(response_data,status=status.HTTP_200_OK)
@@ -117,9 +113,14 @@ class QuestionDetail(APIView):
         serializer = QuestionSerializer(question)
         
         question_data = serializer.data
+        
+        # comment 존재 확인
+        if 'comment' in question_data:
+            comment_data = question_data['comment']
+        
         question_data['is_answered'] = get_question_is_answered(question)
-        del question_data['comment']
-        del question_data['user']
+        # del question_data['comment']
+        # del question_data['user']
             
         comment_data = serializer.data.get('comment', {})
         
