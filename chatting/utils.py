@@ -6,7 +6,7 @@ from geopy.geocoders import Nominatim
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from plants.models import Plant
+from plants.models import Plant, Plant_Disease_Record
 from accounts.models import User
 from .models import PlantReplier
 from plants.serializer import PlantSerializer, PlantTypeSerializer
@@ -66,6 +66,17 @@ def get_soil_condition(plant_id):
     return soil_info_cache[plant_id]["info"]
 
 
+# 가장 최근 방문 날짜 가져오기
+def get_last_visit_date(plant_id):
+    last_record = Plant_Disease_Record.objects.filter(plant_id=plant_id).order_by('-created_at').first()
+    
+    if last_record:
+        last_visit_date = last_record.created_at.strptime('%Y-%m-%d')
+        return f"마지막 방문 날짜는 {last_visit_date}입니다."
+    else:
+        return "심은 이후에 아직 방문하신 적이 없어요."
+
+
 # 채팅 응답 받아오기
 def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     # 식물 정보 가져오기
@@ -73,6 +84,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     plant = get_object_or_404(Plant, pk=plant_id)
     plant_serializer = PlantSerializer(plant)
     plant_type_serializer = PlantTypeSerializer(plant.plant_type_id)
+    plant_last_visit = get_last_visit_date(plant_id)
     
     # 흙 상태 가져오기
     soil_condition = get_soil_condition(plant_id)
@@ -100,7 +112,7 @@ def generate_chatgpt_response(user_chat_data, user_id, selected_date):
     
     prompt = f"{user_name}의 식물 정보: {plant_serializer.data}, 식물 품종 정보: {plant_type_serializer.data}"
     prompt += f"\n현재 날씨: {weather_data['description']}, 온도: {weather_data['temperature']}°C, 습도: {weather_data['humidity']}."
-    prompt += f"\n흙 상태: {soil_condition}"
+    prompt += f"\n흙 상태: {soil_condition}, 마지막 방문날짜: {plant_last_visit}"
     
     # 전송할 message 작성
     message_to_send = [
