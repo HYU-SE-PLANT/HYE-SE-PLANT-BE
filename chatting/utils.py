@@ -71,7 +71,7 @@ def get_last_visit_date(plant_id):
     last_record = Plant_Disease_Record.objects.filter(plant_id=plant_id).order_by('-created_at').first()
     
     if last_record:
-        last_visit_date = last_record.created_at.strptime('%Y-%m-%d')
+        last_visit_date = last_record.created_at.strftime('%Y-%m-%d')
         return f"마지막 방문 날짜는 {last_visit_date}입니다."
     else:
         return "심은 이후에 아직 방문하신 적이 없어요."
