@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "chatgpt",
+        "geocoders",
+        "geopy",
+        "Nominatim",
         "openai",
         "resnet",
         "simplejwt"
