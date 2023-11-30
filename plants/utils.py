@@ -30,10 +30,8 @@ def calculate_growth_level(plant_type, planted_at):
             return 'germination'
     elif plant_type.growth_period_start <= days_since_planted <= plant_type.growth_period_end:
         return 'growth'
-    elif plant_type.harvest_period_start <= days_since_planted <= plant_type.harvest_period_end:
+    elif plant_type.harvest_period_start <= days_since_planted:
         return 'harvest'
-    else:
-        return 'nothing'
     
     
 # 수정하고자 하는 정보가 빈칸인지 확인
