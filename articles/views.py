@@ -28,7 +28,7 @@ class ArticleList(APIView):
 
 # Article 등록하기 - 백엔드에서 직접 넣어줄 예정
 class ArticleCreate(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAdminUser]
     authentication_classes = [JWTAuthentication]
     
     def post(self, request):
