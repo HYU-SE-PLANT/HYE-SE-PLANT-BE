@@ -16,9 +16,6 @@ from .utils import generate_chatgpt_response
 from django.utils import timezone
 
 
-# def get_weather_data(address):
-
-
 class PlantChattingView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
