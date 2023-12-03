@@ -57,7 +57,7 @@ class QuestionCreate(APIView):
     
 # 새로운 댓글 등록 - 백엔드에서 직접 넣어줄 예정
 class CommentCreate(APIView):
-    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 댓글 등록 가능
+    permission_classes = [permissions.IsAdminUser] # 토큰 없이 누구나 댓글 등록 가능
     authentication_classes = [JWTAuthentication]
     
     # 객체 가져오기
