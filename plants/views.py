@@ -40,7 +40,7 @@ class PlantList(APIView):
 
 # 식물 세부정보 등록 - 백엔드에서 직접 추가(1순위)
 class PlantType(APIView):
-    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
+    permission_classes = [permissions.IsAdminUser] # 토큰 없이 누구나 세부정보 등록 가능
     authentication_classes = [JWTAuthentication]
     
     def post(self, request):
@@ -219,7 +219,7 @@ class PlantDetail(APIView):
     
 # 식물 질병 목록 등록 - 백엔드에서 직접 추가
 class PlantDiseaseTypeView(APIView):
-    permission_classes = [permissions.AllowAny] # 토큰 없이 누구나 세부정보 등록 가능
+    permission_classes = [permissions.IsAdminUser] # 토큰 없이 누구나 세부정보 등록 가능
     authentication_classes = [JWTAuthentication]
 
     def post(self, request):
