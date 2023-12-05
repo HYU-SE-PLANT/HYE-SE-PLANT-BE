@@ -39,6 +39,8 @@ BloomMate/               - The top folder where you added the repository.
 ```
 
 ## 🪴Local development
+> If you're using **Postman** instead of a direct connection to the Internet, you should be able to use each **request** normally.
+
 To run this project in your development machine, follow these steps:
 
 1. Move to your file location where you want to install the project and install virtualenv.
