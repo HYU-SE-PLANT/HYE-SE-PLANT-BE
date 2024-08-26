@@ -1,6 +1,6 @@
 # BloomMate - Backend
 
-> This software is part of a project for a Software Engineering Class at **Hanyang University Information Systems Dept.**
+> This software is part of a project for a Software Engineering Project.
 
 > The class is in collaboration with **LG Electronics.**
 
